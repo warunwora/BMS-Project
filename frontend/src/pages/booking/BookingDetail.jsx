@@ -28,7 +28,7 @@ export default function BookingDetail() {
         </PageTitle>
         <div className="flex gap-3">
           <Button variant="outlineBlue" icon={Pencil}>Edit Booking</Button>
-          <Button variant="outlineBlue" icon={Printer}>Print Receipt</Button>
+          <Button variant="outlineBlue" icon={Printer} onClick={() => window.print()}>Print Receipt</Button>
           <Button variant="danger" icon={XCircle}>Cancel Booking</Button>
         </div>
       </div>

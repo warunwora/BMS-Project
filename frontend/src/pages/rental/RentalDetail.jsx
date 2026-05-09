@@ -27,7 +27,7 @@ export default function RentalDetail() {
           <span className="text-indigo-600 font-medium">Rented</span>
         </PageTitle>
         <div className="flex gap-3">
-          <Button variant="outlineBlue" icon={Printer}>Print Receipt</Button>
+          <Button variant="outlineBlue" icon={Printer} onClick={() => window.print()}>Print Receipt</Button>
           <Button icon={Undo2}>Process Return</Button>
         </div>
       </div>
