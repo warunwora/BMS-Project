@@ -13,7 +13,7 @@ function Row({ label, value }) {
 export default function POS() {
   return (
     <div>
-      <PageHeader title="Point of Sale" actions={<Button variant="outlineBlue" icon={Printer}>Print Receipt</Button>} />
+      <PageHeader title="Point of Sale" actions={<Button variant="outlineBlue" icon={Printer} onClick={() => window.print()}>Print Receipt</Button>} />
 
       <div className="grid grid-cols-3 gap-6">
         <div className="col-span-2 flex flex-col gap-6">

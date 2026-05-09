@@ -23,7 +23,7 @@ export default function Receipt() {
     <div>
       <div className="flex justify-between items-start mb-6">
         <PageTitle back title="PO20260205-01" />
-        <Button variant="outlineBlue" icon={Printer}>Print Receipt</Button>
+        <Button variant="outlineBlue" icon={Printer} onClick={() => window.print()}>Print Receipt</Button>
       </div>
 
       <div className="grid grid-cols-3 gap-6">

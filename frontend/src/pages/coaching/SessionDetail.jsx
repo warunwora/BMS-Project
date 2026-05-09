@@ -25,7 +25,7 @@ export default function SessionDetail() {
         <PageTitle back title="Session CS-001" />
         <div className="flex gap-3">
           <Button variant="outlineBlue" icon={Pencil}>Edit Session</Button>
-          <Button variant="outlineBlue" icon={Printer}>Print Receipt</Button>
+          <Button variant="outlineBlue" icon={Printer} onClick={() => window.print()}>Print Receipt</Button>
         </div>
       </div>
 
