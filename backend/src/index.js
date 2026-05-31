@@ -1,10 +1,6 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import pg from "pg";
-import { readFileSync } from "fs";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
 import { supabase } from "./lib/supabase.js";
 import members from "./routes/members.js";
 import courts from "./routes/courts.js";
@@ -18,11 +14,8 @@ import workOrders from "./routes/workOrders.js";
 import receipts from "./routes/receipts.js";
 import sales from "./routes/sales.js";
 
-const { Client } = pg;
-const __dir = dirname(fileURLToPath(import.meta.url));
-
 const app = express();
-const allowedOrigins = ["http:
+const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
 app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 
@@ -52,33 +45,6 @@ app.use("/api/work-orders", workOrders);
 app.use("/api/receipts", receipts);
 app.use("/api/sales", sales);
 
-app.post("/api/migrate", async (req, res) => {
-  const pass = process.env.SUPABASE_DB_PASSWORD;
-  if (!pass) return res.status(400).json({ error: "Set SUPABASE_DB_PASSWORD in backend/.env first" });
-
-  const ref = (process.env.SUPABASE_URL || "").replace("https:
-  const connStr = `postgresql:
-
-  const client = new Client({ connectionString: connStr, ssl: { rejectUnauthorized: false } });
-  const results = [];
-
-  try {
-    await client.connect();
-    const sql = readFileSync(join(__dir, "../migration.sql"), "utf8");
-    const stmts = sql.split(";").map((s) => s.trim()).filter((s) => s && !s.startsWith("--"));
-
-    for (const stmt of stmts) {
-      try { await client.query(stmt); results.push({ ok: stmt.slice(0, 60) }); }
-      catch (e) { results.push({ warn: e.message.split("\n")[0] }); }
-    }
-
-    res.json({ status: "done", results });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  } finally {
-    await client.end().catch(() => {});
-  }
-});
 
 app.listen(process.env.PORT || 4000, () => {
   console.log(`Backend running on port ${process.env.PORT || 4000}`);
