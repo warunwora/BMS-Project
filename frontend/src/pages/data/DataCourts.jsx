@@ -1,27 +1,55 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DataLayout from "./DataLayout";
-import { SearchBar, Pagination, RowActions } from "../../components/ui";
-
-const data = Array.from({ length: 8 }, () => ({ no: 7, code: "C007", weekday: "250.00", weekend: "300.00" }));
+import { SearchBar, Pagination, RowActions, ConfirmModal } from "../../components/ui";
+import { useToast } from "../../contexts/toast";
+import { get, del } from "../../lib/api";
 
 export default function DataCourts() {
+  const nav = useNavigate();
+  const toast = useToast();
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [confirm, setConfirm] = useState(null);
+
+  useEffect(() => {
+    setLoading(true);
+    get("/courts", { search }).then(setData).catch((e) => toast(e.message, "error")).finally(() => setLoading(false));
+  }, [search]);
+
+  function handleDelete(id, code) {
+    setConfirm({
+      title: "Delete Court?",
+      message: `Delete court "${code}"?`,
+      onConfirm: async () => {
+        try { await del(`/courts/${id}`); toast("Court deleted"); setData((d) => d.filter((r) => r.id !== id)); }
+        catch (e) { toast(e.message, "error"); }
+        setConfirm(null);
+      },
+    });
+  }
+
   return (
     <DataLayout>
       <div className="flex gap-3 mb-5">
-        <SearchBar placeholder="Search by Court No, Court Code" />
+        <SearchBar placeholder="Search by Court No, Court Code" value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
       <div className="grid grid-cols-[0.6fr_1fr_1fr_1fr_auto] text-sm text-slate-400 py-4 px-2 border-t border-slate-100">
         <div>Court No</div><div>Court Code</div><div>Weekday Price</div><div>Weekend Price</div><div></div>
       </div>
-      {data.map((r, i) => (
-        <div key={i} className="grid grid-cols-[0.6fr_1fr_1fr_1fr_auto] items-center py-4 px-2 border-t border-slate-100 text-sm">
-          <div className="font-semibold">{r.no}</div>
-          <div className="font-semibold">{r.code}</div>
-          <div className="font-semibold">{r.weekday}</div>
-          <div className="font-semibold">{r.weekend}</div>
-          <RowActions />
+      {loading && <div className="py-8 text-center text-sm text-slate-400">Loading...</div>}
+      {data.map((r) => (
+        <div key={r.id} className="grid grid-cols-[0.6fr_1fr_1fr_1fr_auto] items-center py-4 px-2 border-t border-slate-100 text-sm hover:bg-slate-50 animate-fade-in">
+          <div className="font-semibold">{r.court_no}</div>
+          <div className="font-semibold">{r.court_code}</div>
+          <div className="font-semibold">{r.weekday_price}</div>
+          <div className="font-semibold">{r.weekend_price}</div>
+          <RowActions onEdit={() => nav("/data/courts/" + r.id)} onDelete={() => handleDelete(r.id, r.court_code)} />
         </div>
       ))}
       <Pagination />
+      <ConfirmModal open={!!confirm} title={confirm?.title} message={confirm?.message} confirmText="Delete" onConfirm={confirm?.onConfirm} onCancel={() => setConfirm(null)} />
     </DataLayout>
   );
 }

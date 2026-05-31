@@ -1,9 +1,11 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { ToastProvider } from "./contexts/toast";
 import MainLayout from "./layouts/MainLayout";
 
 import CourtBooking from "./pages/booking/CourtBooking";
 import BookingDetail from "./pages/booking/BookingDetail";
 import CreateBooking from "./pages/booking/CreateBooking";
+import BookingEdit from "./pages/booking/BookingEdit";
 
 import EquipmentRental from "./pages/rental/EquipmentRental";
 import RentalDetail from "./pages/rental/RentalDetail";
@@ -16,6 +18,7 @@ import CreateWorkOrder from "./pages/restringing/CreateWorkOrder";
 import CoachingSession from "./pages/coaching/CoachingSession";
 import SessionDetail from "./pages/coaching/SessionDetail";
 import BookSession from "./pages/coaching/BookSession";
+import SessionEdit from "./pages/coaching/SessionEdit";
 
 import POS from "./pages/pos/POS";
 import Receipt from "./pages/pos/Receipt";
@@ -34,9 +37,14 @@ import CreateAsset from "./pages/data/CreateAsset";
 import CreateProduct from "./pages/data/CreateProduct";
 import CreateCoach from "./pages/data/CreateCoach";
 import CustomerEdit from "./pages/data/CustomerEdit";
+import CourtEdit from "./pages/data/CourtEdit";
+import CoachEdit from "./pages/data/CoachEdit";
+import AssetEdit from "./pages/data/AssetEdit";
+import ProductEdit from "./pages/data/ProductEdit";
 
 export default function App() {
   return (
+    <ToastProvider>
     <Routes>
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Navigate to="/booking" replace />} />
@@ -44,6 +52,7 @@ export default function App() {
         <Route path="booking" element={<CourtBooking />} />
         <Route path="booking/new" element={<CreateBooking />} />
         <Route path="booking/:id" element={<BookingDetail />} />
+        <Route path="booking/:id/edit" element={<BookingEdit />} />
 
         <Route path="rental" element={<EquipmentRental />} />
         <Route path="rental/new" element={<CreateRental />} />
@@ -56,6 +65,7 @@ export default function App() {
         <Route path="coaching" element={<CoachingSession />} />
         <Route path="coaching/new" element={<BookSession />} />
         <Route path="coaching/:id" element={<SessionDetail />} />
+        <Route path="coaching/:id/edit" element={<SessionEdit />} />
 
         <Route path="pos" element={<POS />} />
         <Route path="pos/receipt/:id" element={<Receipt />} />
@@ -69,13 +79,18 @@ export default function App() {
         <Route path="data/members/:id" element={<CustomerEdit />} />
         <Route path="data/courts" element={<DataCourts />} />
         <Route path="data/courts/new" element={<CreateCourt />} />
+        <Route path="data/courts/:id" element={<CourtEdit />} />
         <Route path="data/assets" element={<DataAssets />} />
         <Route path="data/assets/new" element={<CreateAsset />} />
+        <Route path="data/assets/:id" element={<AssetEdit />} />
         <Route path="data/products" element={<DataProducts />} />
         <Route path="data/products/new" element={<CreateProduct />} />
+        <Route path="data/products/:id" element={<ProductEdit />} />
         <Route path="data/coaches" element={<DataCoaches />} />
         <Route path="data/coaches/new" element={<CreateCoach />} />
+        <Route path="data/coaches/:id" element={<CoachEdit />} />
       </Route>
     </Routes>
+    </ToastProvider>
   );
 }
