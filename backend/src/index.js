@@ -14,6 +14,7 @@ import sessions from "./routes/sessions.js";
 import workOrders from "./routes/workOrders.js";
 import receipts from "./routes/receipts.js";
 import sales from "./routes/sales.js";
+import serviceTypes from "./routes/serviceTypes.js";
 
 const app = express();
 const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
@@ -46,6 +47,7 @@ app.use("/api/sessions", sessions);
 app.use("/api/work-orders", workOrders);
 app.use("/api/receipts", receipts);
 app.use("/api/sales", sales);
+app.use("/api/service-types", serviceTypes);
 
 
 app.listen(process.env.PORT || 4000, () => {

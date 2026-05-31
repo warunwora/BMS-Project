@@ -58,7 +58,7 @@ router.get("/:id", async (req, res) => {
     const normItems = (items ?? []).map((i) => ({
       id: i.id,
       work_order_id: i.work_order_id,
-      asset: i.racket?.name ?? i.racket?.code ?? "",
+      asset: i.product?.code ?? "",
       product_code: i.product?.code ?? "",
       service: i.service?.name ?? "",
       tension: i.tension_required,
@@ -104,6 +104,10 @@ router.post("/", async (req, res) => {
         items.map((i) => ({
           id: lineId++,
           work_order_id: wo.id,
+          racket_model_product_id: i.racket_model_product_id ?? null,
+          product_id: i.product_id ?? null,
+          service_id: i.service_id ?? null,
+          tension_required: i.tension_required ?? null,
           material_cost: parseFloat(i.material_cost) || 0,
           labor_fee: parseFloat(i.labor_fee) || 0,
           line_total: (parseFloat(i.material_cost) || 0) + (parseFloat(i.labor_fee) || 0),
