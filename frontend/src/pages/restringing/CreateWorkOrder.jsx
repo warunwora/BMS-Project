@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Pencil, Trash2 } from "lucide-react";
-import { PageTitle, Button, Card, Field, Input, Select, Plus, MemberSearch } from "../../components/ui";
+import { PageTitle, Button, Card, Field, Input, Select, Plus, MemberSearch, TechnicianSearch } from "../../components/ui";
 import { useToast } from "../../contexts/toast";
 import { get, post } from "../../lib/api";
 
@@ -19,7 +19,7 @@ export default function CreateWorkOrder() {
   const toast = useToast();
   const today = new Date().toISOString().split("T")[0];
   const [member, setMember] = useState(null);
-  const [techId, setTechId] = useState("");
+  const [technician, setTechnician] = useState(null);
   const [estFinish, setEstFinish] = useState("");
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState({ asset: "", product_code: "", service: "Stringing", tension: "", material_cost: "0.00", labor_fee: "0.00" });
@@ -42,7 +42,7 @@ export default function CreateWorkOrder() {
   async function handleSave() {
     const e = {};
     if (!member) e.member = "Member is required";
-    if (!techId) e.techId = "Tech ID is required";
+    if (!technician) e.technician = "Technician is required";
     if (!estFinish) e.estFinish = "Estimated finish date is required";
     if (items.length === 0) e.items = "Add at least one service item";
     if (Object.keys(e).length) { setErrors(e); return; }
@@ -50,7 +50,7 @@ export default function CreateWorkOrder() {
     try {
       const wo = await post("/work-orders", {
         member_id: member?.id,
-        tech_id: techId,
+        tech_id: technician?.id,
         date: today,
         est_finish_date: estFinish,
         status: "Pending",
@@ -78,9 +78,9 @@ export default function CreateWorkOrder() {
               </Field>
             </div>
             <div className="grid grid-cols-2 gap-6 mt-5">
-              <Field label="Tech ID" required>
-                <Input placeholder="T-00" value={techId} onChange={(e) => { setTechId(e.target.value); setErrors((p) => ({ ...p, techId: "" })); }} className={errors.techId ? "border-red-400" : ""} />
-                {errors.techId && <p className="text-xs text-red-500 mt-1">{errors.techId}</p>}
+              <Field label="Technician" required>
+                <TechnicianSearch selected={technician} onSelect={(t) => { setTechnician(t); setErrors((p) => ({ ...p, technician: "" })); }} />
+                {errors.technician && <p className="text-xs text-red-500 mt-1">{errors.technician}</p>}
               </Field>
               <Field label="Est Finish Date" required>
                 <input type="date" value={estFinish} onChange={(e) => { setEstFinish(e.target.value); setErrors((p) => ({ ...p, estFinish: "" })); }} className={`w-full px-4 py-2.5 border rounded-xl text-sm ${errors.estFinish ? "border-red-400" : "border-slate-200"}`} />

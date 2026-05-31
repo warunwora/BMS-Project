@@ -76,8 +76,6 @@ export default function BookingEdit() {
             <Field label="Subtotal"><Input value={form.subtotal ?? ""} onChange={(e) => set("subtotal", e.target.value)} /></Field>
             <Field label="Discount"><Input value={form.discount ?? ""} onChange={(e) => set("discount", e.target.value)} /></Field>
             <Field label="Net Amount"><Input value={form.net_amount ?? ""} onChange={(e) => set("net_amount", e.target.value)} /></Field>
-            <Field label="Deposit"><Input value={form.deposit ?? ""} onChange={(e) => set("deposit", e.target.value)} /></Field>
-            <Field label="Change"><Input value={form.change ?? ""} onChange={(e) => set("change", e.target.value)} /></Field>
           </div>
         </Card>
       </div>

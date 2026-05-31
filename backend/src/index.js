@@ -5,6 +5,7 @@ import { supabase } from "./lib/supabase.js";
 import members from "./routes/members.js";
 import courts from "./routes/courts.js";
 import coaches from "./routes/coaches.js";
+import technicians from "./routes/technicians.js";
 import assets from "./routes/assets.js";
 import products from "./routes/products.js";
 import bookings from "./routes/bookings.js";
@@ -36,6 +37,7 @@ app.get("/api/health", async (req, res) => {
 app.use("/api/members", members);
 app.use("/api/courts", courts);
 app.use("/api/coaches", coaches);
+app.use("/api/technicians", technicians);
 app.use("/api/assets", assets);
 app.use("/api/products", products);
 app.use("/api/bookings", bookings);

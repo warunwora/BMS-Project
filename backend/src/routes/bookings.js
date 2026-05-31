@@ -149,12 +149,15 @@ router.post("/", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   try {
-    
-    const { status, member, booking_court, code, id, booking_date, play_date, subtotal, ...rest } = req.body;
+    const { status, booking_court, code, id, booking_date, play_date, subtotal, discount, net_amount, points_earned, total_hour } = req.body;
     const updateData = {
-      ...rest,
+      status,
       reservation_date: play_date ?? booking_date,
       amount_sum: subtotal,
+      discount,
+      net_amount,
+      points_earned,
+      total_hour,
     };
     Object.keys(updateData).forEach((k) => updateData[k] === undefined && delete updateData[k]);
 

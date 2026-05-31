@@ -36,12 +36,12 @@ export function PageHeader({ title, actions }) {
 
 export function Button({ children, variant = "primary", className = "", icon: Icon, ...props }) {
   const styles = {
-    primary:      "bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm hover:shadow-md",
-    outline:      "border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400",
-    outlineBlue:  "border border-indigo-200 text-indigo-600 bg-white hover:bg-indigo-50 hover:border-indigo-400",
-    danger:       "bg-rose-500 text-white hover:bg-rose-600 shadow-sm hover:shadow-md",
-    dangerOutline:"border border-rose-300 text-rose-600 bg-white hover:bg-rose-50 hover:border-rose-400",
-    ghost:        "text-slate-700 hover:bg-slate-100",
+    primary: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm hover:shadow-md",
+    outline: "border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400",
+    outlineBlue: "border border-indigo-200 text-indigo-600 bg-white hover:bg-indigo-50 hover:border-indigo-400",
+    danger: "bg-rose-500 text-white hover:bg-rose-600 shadow-sm hover:shadow-md",
+    dangerOutline: "border border-rose-300 text-rose-600 bg-white hover:bg-rose-50 hover:border-rose-400",
+    ghost: "text-slate-700 hover:bg-slate-100",
   };
   return (
     <button
@@ -94,11 +94,10 @@ export function FilterPills({ items, value, onChange }) {
         <button
           key={it}
           onClick={() => onChange?.(it)}
-          className={`px-5 py-2 rounded-full text-sm font-medium border transition-all duration-150 active:scale-95 ${
-            value === it
+          className={`px-5 py-2 rounded-full text-sm font-medium border transition-all duration-150 active:scale-95 ${value === it
               ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
               : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
-          }`}
+            }`}
         >
           {it}
         </button>
@@ -199,10 +198,10 @@ export function Pagination({ page = 1, total = 1, onPage }) {
 export function StatusText({ children, color = "indigo" }) {
   const colors = {
     indigo: "text-indigo-600",
-    green:  "text-emerald-600",
-    rose:   "text-rose-500",
-    amber:  "text-amber-600",
-    slate:  "text-slate-600",
+    green: "text-emerald-600",
+    rose: "text-rose-500",
+    amber: "text-amber-600",
+    slate: "text-slate-600",
   };
   return <span className={`font-medium ${colors[color]}`}>{children}</span>;
 }
@@ -218,13 +217,13 @@ export function Table({ columns, rows, onRowClick, onEdit, onDelete }) {
 
   const sorted = sortKey
     ? [...rows].sort((a, b) => {
-        const av = a[sortKey] ?? "";
-        const bv = b[sortKey] ?? "";
-        const cmp = typeof av === "number" && typeof bv === "number"
-          ? av - bv
-          : String(av).localeCompare(String(bv), undefined, { numeric: true, sensitivity: "base" });
-        return sortDir === "asc" ? cmp : -cmp;
-      })
+      const av = a[sortKey] ?? "";
+      const bv = b[sortKey] ?? "";
+      const cmp = typeof av === "number" && typeof bv === "number"
+        ? av - bv
+        : String(av).localeCompare(String(bv), undefined, { numeric: true, sensitivity: "base" });
+      return sortDir === "asc" ? cmp : -cmp;
+    })
     : rows;
 
   const gridTpl = columns.map((c) => c.width || "1fr").join(" ") + " auto";
@@ -277,16 +276,16 @@ export function Table({ columns, rows, onRowClick, onEdit, onDelete }) {
 export function Tooltip({ children, text, position = "top" }) {
   if (!text) return children;
   const posClass = {
-    top:    "bottom-full left-1/2 -translate-x-1/2 mb-2",
+    top: "bottom-full left-1/2 -translate-x-1/2 mb-2",
     bottom: "top-full left-1/2 -translate-x-1/2 mt-2",
-    left:   "right-full top-1/2 -translate-y-1/2 mr-2",
-    right:  "left-full top-1/2 -translate-y-1/2 ml-2",
+    left: "right-full top-1/2 -translate-y-1/2 mr-2",
+    right: "left-full top-1/2 -translate-y-1/2 ml-2",
   };
   const arrowClass = {
-    top:    "absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-slate-800",
+    top: "absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-slate-800",
     bottom: "absolute bottom-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-b-slate-800",
-    left:   "absolute left-full top-1/2 -translate-y-1/2 border-[5px] border-transparent border-l-slate-800",
-    right:  "absolute right-full top-1/2 -translate-y-1/2 border-[5px] border-transparent border-r-slate-800",
+    left: "absolute left-full top-1/2 -translate-y-1/2 border-[5px] border-transparent border-l-slate-800",
+    right: "absolute right-full top-1/2 -translate-y-1/2 border-[5px] border-transparent border-r-slate-800",
   };
   return (
     <div className="relative group inline-flex">
@@ -566,18 +565,16 @@ export function MemberSearch({ onSelect, selected, placeholder = "Search name, I
 
   useEffect(() => {
     const q = query.trim();
-    if (!q) { setResults([]); setOpen(false); return; }
     const timer = setTimeout(async () => {
       try {
         setLoading(true);
         const res = await fetch(`/api/members?search=${encodeURIComponent(q)}`);
         const data = await res.json();
         setResults(Array.isArray(data) ? data : []);
-        setOpen(true);
         setRect(inputRef.current?.getBoundingClientRect());
       } catch { setResults([]); }
       finally { setLoading(false); }
-    }, 250);
+    }, q ? 250 : 0);
     return () => clearTimeout(timer);
   }, [query]);
 
@@ -589,6 +586,11 @@ export function MemberSearch({ onSelect, selected, placeholder = "Search name, I
   }
 
   function handleClear() { onSelect(null); setQuery(""); setResults([]); setOpen(false); }
+
+  function handleFocus() {
+    setOpen(true);
+    setRect(inputRef.current?.getBoundingClientRect());
+  }
 
   return (
     <div ref={containerRef}>
@@ -610,6 +612,7 @@ export function MemberSearch({ onSelect, selected, placeholder = "Search name, I
             placeholder={placeholder}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onFocus={handleFocus}
           />
           {loading && <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400">...</div>}
         </div>
@@ -662,21 +665,24 @@ export function CoachSearch({ onSelect, selected }) {
 
   useEffect(() => {
     const q = query.trim();
-    if (!q) { setResults([]); setOpen(false); return; }
     const timer = setTimeout(async () => {
       try {
         const res = await fetch(`/api/coaches?search=${encodeURIComponent(q)}`);
         const data = await res.json();
         setResults(Array.isArray(data) ? data : []);
-        setOpen(true);
         setRect(inputRef.current?.getBoundingClientRect());
       } catch { setResults([]); }
-    }, 250);
+    }, q ? 250 : 0);
     return () => clearTimeout(timer);
   }, [query]);
 
   function handleSelect(c) { onSelect(c); setQuery(""); setResults([]); setOpen(false); }
   function handleClear() { onSelect(null); setQuery(""); setResults([]); setOpen(false); }
+
+  function handleFocus() {
+    setOpen(true);
+    setRect(inputRef.current?.getBoundingClientRect());
+  }
 
   return (
     <div ref={containerRef}>
@@ -720,6 +726,106 @@ export function CoachSearch({ onSelect, selected }) {
                 <div className="font-semibold text-slate-900">{c.name}</div>
                 <div className="text-slate-500">{c.speciality}</div>
                 <div className="text-indigo-500 font-medium">฿{c.hourly_rate}</div>
+              </button>
+            ))}
+          </div>
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+}
+
+export function TechnicianSearch({ onSelect, selected, placeholder = "Search technician name, ID or phone" }) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [rect, setRect] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const inputRef = useRef(null);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    function outside(e) {
+      if (containerRef.current && !containerRef.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener("mousedown", outside);
+    return () => document.removeEventListener("mousedown", outside);
+  }, []);
+
+  useEffect(() => {
+    const q = query.trim();
+    const timer = setTimeout(async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/technicians?search=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        setResults(Array.isArray(data) ? data : []);
+        setRect(inputRef.current?.getBoundingClientRect());
+      } catch { setResults([]); }
+      finally { setLoading(false); }
+    }, q ? 250 : 0);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  function handleSelect(t) {
+    onSelect(t);
+    setQuery("");
+    setResults([]);
+    setOpen(false);
+  }
+
+  function handleClear() { onSelect(null); setQuery(""); setResults([]); setOpen(false); }
+
+  function handleFocus() {
+    setOpen(true);
+    setRect(inputRef.current?.getBoundingClientRect());
+  }
+
+  return (
+    <div ref={containerRef}>
+      {selected ? (
+        <div className="flex items-center gap-3 px-4 py-2.5 border border-indigo-300 rounded-xl bg-indigo-50">
+          <div className="flex-1 min-w-0">
+            <span className="font-semibold text-indigo-700 text-sm">{selected.name}</span>
+            <span className="text-indigo-400 text-sm ml-2">{selected.code}</span>
+            {selected.phone && <span className="ml-2 text-xs text-indigo-400">{selected.phone}</span>}
+          </div>
+          <button onClick={handleClear} className="text-indigo-300 hover:text-rose-500 transition-colors"><X className="w-4 h-4" /></button>
+        </div>
+      ) : (
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <input
+            ref={inputRef}
+            className="w-full pl-12 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            placeholder={placeholder}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onFocus={handleFocus}
+          />
+          {loading && <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400">...</div>}
+        </div>
+      )}
+      {open && results.length > 0 && rect && createPortal(
+        <div
+          style={{ position: "fixed", top: rect.bottom + 4, left: rect.left, width: rect.width, zIndex: 9999 }}
+          className="bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden animate-fade-in"
+        >
+          <div className="grid text-xs text-slate-400 px-4 py-2 border-b border-slate-100" style={{ gridTemplateColumns: "2fr 0.8fr 1.2fr" }}>
+            <div>Name</div><div>Code</div><div>Phone</div>
+          </div>
+          <div className="max-h-52 overflow-y-auto">
+            {results.map((t) => (
+              <button
+                key={t.id}
+                onMouseDown={(e) => { e.preventDefault(); handleSelect(t); }}
+                className="w-full text-left grid px-4 py-3 hover:bg-indigo-50 text-sm border-b border-slate-100 last:border-0 transition-colors"
+                style={{ gridTemplateColumns: "2fr 0.8fr 1.2fr" }}
+              >
+                <div className="font-semibold text-slate-900 truncate">{t.name}</div>
+                <div className="text-slate-500">{t.code}</div>
+                <div className="text-slate-500">{t.phone}</div>
               </button>
             ))}
           </div>
