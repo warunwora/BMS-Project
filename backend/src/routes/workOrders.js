@@ -52,14 +52,18 @@ router.get("/:id", async (req, res) => {
 
     const { data: items, error: err2 } = await supabase
       .from("work_order_line_item")
-      .select("*,racket:racket_model_product_id(code,name),product:product_id(code,name),service:service_id(name)")
+      .select("*,racket:racket_model_product_id(id,code,name),product:product_id(id,code,name),service:service_id(id,name)")
       .eq("work_order_id", req.params.id);
 
     const normItems = (items ?? []).map((i) => ({
       id: i.id,
       work_order_id: i.work_order_id,
-      asset: i.product?.code ?? "",
+      racket_model_product_id: i.racket_model_product_id,
+      racket_code: i.racket?.code ?? "",
+      racket_name: i.racket?.name ?? "",
+      product_id: i.product_id,
       product_code: i.product?.code ?? "",
+      product_name: i.product?.name ?? "",
       service: i.service?.name ?? "",
       tension: i.tension_required,
       material_cost: i.material_cost ?? 0,
