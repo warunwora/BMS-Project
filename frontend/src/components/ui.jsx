@@ -836,4 +836,105 @@ export function TechnicianSearch({ onSelect, selected, placeholder = "Search tec
   );
 }
 
+export function ProductSearch({ onSelect, selected, placeholder = "Search product name or code", label = "Product" }) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [rect, setRect] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const inputRef = useRef(null);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    function outside(e) {
+      if (containerRef.current && !containerRef.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener("mousedown", outside);
+    return () => document.removeEventListener("mousedown", outside);
+  }, []);
+
+  useEffect(() => {
+    const q = query.trim();
+    const timer = setTimeout(async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/products?search=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        setResults(Array.isArray(data) ? data : []);
+        setRect(inputRef.current?.getBoundingClientRect());
+      } catch { setResults([]); }
+      finally { setLoading(false); }
+    }, q ? 250 : 0);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  function handleSelect(p) {
+    onSelect(p);
+    setQuery("");
+    setResults([]);
+    setOpen(false);
+  }
+
+  function handleClear() { onSelect(null); setQuery(""); setResults([]); setOpen(false); }
+
+  function handleFocus() {
+    setOpen(true);
+    setRect(inputRef.current?.getBoundingClientRect());
+  }
+
+  return (
+    <div ref={containerRef}>
+      {selected ? (
+        <div className="flex items-center gap-3 px-4 py-2.5 border border-indigo-300 rounded-xl bg-indigo-50">
+          <div className="flex-1 min-w-0">
+            <span className="font-semibold text-indigo-700 text-sm">{selected.name}</span>
+            <span className="text-indigo-400 text-sm ml-2">{selected.code}</span>
+            {selected.unit_price != null && <span className="ml-2 text-xs text-indigo-400">฿{selected.unit_price}</span>}
+          </div>
+          <button onClick={handleClear} className="text-indigo-300 hover:text-rose-500 transition-colors"><X className="w-4 h-4" /></button>
+        </div>
+      ) : (
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <input
+            ref={inputRef}
+            className="w-full pl-12 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            placeholder={placeholder}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onFocus={handleFocus}
+          />
+          {loading && <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400">...</div>}
+        </div>
+      )}
+      {open && results.length > 0 && rect && createPortal(
+        <div
+          style={{ position: "fixed", top: rect.bottom + 4, left: rect.left, width: rect.width, zIndex: 9999 }}
+          className="bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden animate-fade-in"
+        >
+          <div className="grid text-xs text-slate-400 px-4 py-2 border-b border-slate-100" style={{ gridTemplateColumns: "2fr 0.8fr 1fr 0.8fr" }}>
+            <div>Name</div><div>Code</div><div>Category</div><div>Price</div>
+          </div>
+          <div className="max-h-52 overflow-y-auto">
+            {results.map((p) => (
+              <button
+                key={p.id}
+                onMouseDown={(e) => { e.preventDefault(); handleSelect(p); }}
+                className="w-full text-left grid px-4 py-3 hover:bg-indigo-50 text-sm border-b border-slate-100 last:border-0 transition-colors"
+                style={{ gridTemplateColumns: "2fr 0.8fr 1fr 0.8fr" }}
+              >
+                <div className="font-semibold text-slate-900 truncate">{p.name}</div>
+                <div className="text-slate-500">{p.code}</div>
+                <div className="text-slate-500">{p.category}</div>
+                <div className="text-indigo-500 font-medium">฿{p.unit_price ?? 0}</div>
+              </button>
+            ))}
+          </div>
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+}
+
 export { Plus };

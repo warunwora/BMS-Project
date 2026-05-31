@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Pencil, Trash2 } from "lucide-react";
-import { PageTitle, Button, Card, Field, Input, Select, Plus, MemberSearch, TechnicianSearch } from "../../components/ui";
+import { PageTitle, Button, Card, Field, Input, Select, Plus, MemberSearch, TechnicianSearch, ProductSearch } from "../../components/ui";
 import { useToast } from "../../contexts/toast";
 import { get, post } from "../../lib/api";
 
@@ -22,15 +22,58 @@ export default function CreateWorkOrder() {
   const [technician, setTechnician] = useState(null);
   const [estFinish, setEstFinish] = useState("");
   const [items, setItems] = useState([]);
-  const [newItem, setNewItem] = useState({ asset: "", product_code: "", service: "Stringing", tension: "", material_cost: "0.00", labor_fee: "0.00" });
+  const [services, setServices] = useState([]);
   const [errors, setErrors] = useState({});
 
+  // New item form state — now uses product search objects
+  const [racketModel, setRacketModel] = useState(null);
+  const [product, setProduct] = useState(null);
+  const [serviceId, setServiceId] = useState("");
+  const [tension, setTension] = useState("");
+  const [materialCost, setMaterialCost] = useState("0.00");
+  const [laborFee, setLaborFee] = useState("0.00");
 
-  function setItem(k, v) { setNewItem((i) => ({ ...i, [k]: v })); }
+  // Load service types
+  useEffect(() => {
+    get("/service-types").then(setServices).catch(() => {});
+  }, []);
+
+  // Auto-fill material cost when product is selected
+  useEffect(() => {
+    if (product?.unit_price != null) {
+      setMaterialCost(String(product.unit_price));
+    }
+  }, [product]);
+
+  function resetNewItem() {
+    setRacketModel(null);
+    setProduct(null);
+    setServiceId("");
+    setTension("");
+    setMaterialCost("0.00");
+    setLaborFee("0.00");
+  }
 
   function addItem() {
-    setItems((prev) => [...prev, { ...newItem }]);
-    setNewItem({ asset: "", product_code: "", service: "Stringing", tension: "", material_cost: "0.00", labor_fee: "0.00" });
+    if (!racketModel && !product) return;
+    const serviceName = services.find((s) => String(s.id) === String(serviceId))?.name ?? "";
+    setItems((prev) => [
+      ...prev,
+      {
+        racket_model_product_id: racketModel?.id ?? null,
+        racket_name: racketModel?.name ?? "",
+        racket_code: racketModel?.code ?? "",
+        product_id: product?.id ?? null,
+        product_name: product?.name ?? "",
+        product_code: product?.code ?? "",
+        service_id: serviceId ? parseInt(serviceId) : null,
+        service_name: serviceName,
+        tension: tension,
+        material_cost: materialCost,
+        labor_fee: laborFee,
+      },
+    ]);
+    resetNewItem();
   }
 
   function removeItem(i) { setItems((prev) => prev.filter((_, idx) => idx !== i)); }
@@ -57,7 +100,14 @@ export default function CreateWorkOrder() {
         subtotal: totalMaterial.toFixed(2),
         total_labor: totalLabor.toFixed(2),
         net_amount: net.toFixed(2),
-        items,
+        items: items.map((i) => ({
+          racket_model_product_id: i.racket_model_product_id,
+          product_id: i.product_id,
+          service_id: i.service_id,
+          tension: i.tension,
+          material_cost: i.material_cost,
+          labor_fee: i.labor_fee,
+        })),
       });
       toast("Work order created successfully");
       nav(`/restringing/${wo.id}`);
@@ -90,28 +140,63 @@ export default function CreateWorkOrder() {
           </Card>
 
           <Card title="Service Items" action={<Button variant="outlineBlue" icon={Plus} onClick={addItem}>Add Service</Button>}>
-            <div className="grid grid-cols-3 gap-3 mb-4">
-              <Field label="Asset"><Input placeholder="Model" value={newItem.asset} onChange={(e) => setItem("asset", e.target.value)} /></Field>
-              <Field label="Code"><Input placeholder="P000" value={newItem.product_code} onChange={(e) => setItem("product_code", e.target.value)} /></Field>
-              <Field label="Service">
-                <Select value={newItem.service} onChange={(e) => setItem("service", e.target.value)}>
-                  <option>Stringing</option><option>Grip</option><option>Repair</option>
+            {/* New item form */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <Field label="Racket Model">
+                <ProductSearch
+                  selected={racketModel}
+                  onSelect={setRacketModel}
+                  placeholder="Search racket model..."
+                />
+              </Field>
+              <Field label="String / Material Product">
+                <ProductSearch
+                  selected={product}
+                  onSelect={setProduct}
+                  placeholder="Search string or product..."
+                />
+              </Field>
+            </div>
+            <div className="grid grid-cols-4 gap-4 mb-4">
+              <Field label="Service Type">
+                <Select value={serviceId} onChange={(e) => setServiceId(e.target.value)}>
+                  <option value="">Select service</option>
+                  {services.map((s) => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
                 </Select>
               </Field>
-              <Field label="Tension"><Input placeholder="0" value={newItem.tension} onChange={(e) => setItem("tension", e.target.value)} /></Field>
-              <Field label="Mat. Cost"><Input placeholder="0.00" value={newItem.material_cost} onChange={(e) => setItem("material_cost", e.target.value)} /></Field>
-              <Field label="Labor Fee"><Input placeholder="0.00" value={newItem.labor_fee} onChange={(e) => setItem("labor_fee", e.target.value)} /></Field>
+              <Field label="Tension">
+                <Input placeholder="0" value={tension} onChange={(e) => setTension(e.target.value)} />
+              </Field>
+              <Field label="Material Cost">
+                <Input placeholder="0.00" value={materialCost} onChange={(e) => setMaterialCost(e.target.value)} />
+              </Field>
+              <Field label="Labor Fee">
+                <Input placeholder="0.00" value={laborFee} onChange={(e) => setLaborFee(e.target.value)} />
+              </Field>
             </div>
+
             {errors.items && <p className="text-xs text-red-500 mb-2">{errors.items}</p>}
             <div className="text-sm text-slate-500 mb-4">Total: {items.length}</div>
-            <div className="grid grid-cols-[1.4fr_0.7fr_1fr_0.7fr_0.9fr_0.9fr_0.9fr_auto] text-xs text-slate-500 pb-3 border-b border-slate-100">
-              <div>Asset</div><div>Code</div><div>Service</div><div>Tension</div><div>Mat. Cost</div><div>Labor Fee</div><div>Total</div><div></div>
+
+            {/* Table header */}
+            <div className="grid grid-cols-[1.3fr_1.3fr_0.8fr_0.5fr_0.7fr_0.7fr_0.7fr_auto] text-xs text-slate-500 pb-3 border-b border-slate-100">
+              <div>Racket Model</div><div>Product</div><div>Service</div><div>Tension</div><div>Mat. Cost</div><div>Labor Fee</div><div>Total</div><div></div>
             </div>
+
+            {/* Table rows */}
             {items.map((item, i) => (
-              <div key={i} className="grid grid-cols-[1.4fr_0.7fr_1fr_0.7fr_0.9fr_0.9fr_0.9fr_auto] py-4 border-b border-slate-100 text-sm items-center">
-                <div className="font-semibold">{item.asset}</div>
-                <div>{item.product_code}</div>
-                <div>{item.service}</div>
+              <div key={i} className="grid grid-cols-[1.3fr_1.3fr_0.8fr_0.5fr_0.7fr_0.7fr_0.7fr_auto] py-4 border-b border-slate-100 text-sm items-center">
+                <div>
+                  <div className="font-semibold">{item.racket_name}</div>
+                  <div className="text-xs text-slate-400">{item.racket_code}</div>
+                </div>
+                <div>
+                  <div className="font-semibold">{item.product_name}</div>
+                  <div className="text-xs text-slate-400">{item.product_code}</div>
+                </div>
+                <div>{item.service_name}</div>
                 <div>{item.tension}</div>
                 <div>{item.material_cost}</div>
                 <div>{item.labor_fee}</div>

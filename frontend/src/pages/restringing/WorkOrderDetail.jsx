@@ -86,13 +86,19 @@ export default function WorkOrderDetail() {
           </Card>
           <Card title="Service Items">
             <div className="text-sm text-slate-500 mb-4">Total: {items.length}</div>
-            <div className="grid grid-cols-[1.4fr_0.7fr_1fr_0.7fr_0.8fr_0.8fr_0.8fr] text-xs text-slate-500 pb-3 border-b border-slate-100">
-              <div>Model</div><div>Code</div><div>Service</div><div>Tension</div><div>Mat. Cost</div><div>Labor Fee</div><div>Total</div>
+            <div className="grid grid-cols-[1.3fr_1.3fr_0.8fr_0.5fr_0.7fr_0.7fr_0.7fr] text-xs text-slate-500 pb-3 border-b border-slate-100">
+              <div>Racket Model</div><div>Product</div><div>Service</div><div>Tension</div><div>Mat. Cost</div><div>Labor Fee</div><div>Total</div>
             </div>
             {items.map((item, i) => (
-              <div key={i} className="grid grid-cols-[1.4fr_0.7fr_1fr_0.7fr_0.8fr_0.8fr_0.8fr] py-4 border-b border-slate-100 text-sm">
-                <div className="font-semibold">{item.asset}</div>
-                <div>{item.product_code}</div>
+              <div key={i} className="grid grid-cols-[1.3fr_1.3fr_0.8fr_0.5fr_0.7fr_0.7fr_0.7fr] py-4 border-b border-slate-100 text-sm">
+                <div>
+                  <div className="font-semibold">{item.racket_name}</div>
+                  <div className="text-xs text-slate-400">{item.racket_code}</div>
+                </div>
+                <div>
+                  <div className="font-semibold">{item.product_name}</div>
+                  <div className="text-xs text-slate-400">{item.product_code}</div>
+                </div>
                 <div>{item.service}</div>
                 <div>{item.tension}</div>
                 <div>{item.material_cost}</div>
