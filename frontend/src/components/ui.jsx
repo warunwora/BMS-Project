@@ -563,20 +563,35 @@ export function MemberSearch({ onSelect, selected, placeholder = "Search name, I
     return () => document.removeEventListener("mousedown", outside);
   }, []);
 
-  useEffect(() => {
-    const q = query.trim();
-    const timer = setTimeout(async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/members?search=${encodeURIComponent(q)}`);
-        const data = await res.json();
-        setResults(Array.isArray(data) ? data : []);
-        setRect(inputRef.current?.getBoundingClientRect());
-      } catch { setResults([]); }
-      finally { setLoading(false); }
-    }, q ? 250 : 0);
-    return () => clearTimeout(timer);
-  }, [query]);
+  // useEffect(() => {
+  //   const q = query.trim();
+  //   const timer = setTimeout(async () => {
+  //     try {
+  //       setLoading(true);
+  //       const res = await fetch(`/api/members?search=${encodeURIComponent(q)}`);
+  //       const data = await res.json();
+  //       setResults(Array.isArray(data) ? data : []);
+  //       setRect(inputRef.current?.getBoundingClientRect());
+  //     } catch { setResults([]); }
+  //     finally { setLoading(false); }
+  //   }, q ? 250 : 0);
+  //   return () => clearTimeout(timer);
+  // }, [query]);
+ const fetchResults = useCallback(async (q = query) => {
+ try {
+ setLoading(true);
+ const res = await fetch(`/api/members?search=${encodeURIComponent(q.trim())}`);
+ const data = await res.json();
+ setResults(Array.isArray(data) ? data : []);
+ setRect(inputRef.current?.getBoundingClientRect());
+ } catch { setResults([]); }
+ finally { setLoading(false); }
+ }, [query]);
+
+ useEffect(() => {
+ const timer = setTimeout(() => fetchResults(), query ? 250 : 0);
+ return () => clearTimeout(timer);
+ }, [query]);
 
   function handleSelect(m) {
     onSelect(m);
@@ -587,10 +602,11 @@ export function MemberSearch({ onSelect, selected, placeholder = "Search name, I
 
   function handleClear() { onSelect(null); setQuery(""); setResults([]); setOpen(false); }
 
-  function handleFocus() {
-    setOpen(true);
-    setRect(inputRef.current?.getBoundingClientRect());
-  }
+ function handleFocus() {
+ setOpen(true);
+ setRect(inputRef.current?.getBoundingClientRect());
+ fetchResults(query); 
+ }
 
   return (
     <div ref={containerRef}>
@@ -753,33 +769,28 @@ export function TechnicianSearch({ onSelect, selected, placeholder = "Search tec
     return () => document.removeEventListener("mousedown", outside);
   }, []);
 
+  const fetchResults = useCallback(async (q = query) => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/technicians?search=${encodeURIComponent(q.trim())}`);
+      const data = await res.json();
+      setResults(Array.isArray(data) ? data : []);
+      setRect(inputRef.current?.getBoundingClientRect());
+    } catch { setResults([]); }
+    finally { setLoading(false); }
+  }, [query]);
+
   useEffect(() => {
-    const q = query.trim();
-    const timer = setTimeout(async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/technicians?search=${encodeURIComponent(q)}`);
-        const data = await res.json();
-        setResults(Array.isArray(data) ? data : []);
-        setRect(inputRef.current?.getBoundingClientRect());
-      } catch { setResults([]); }
-      finally { setLoading(false); }
-    }, q ? 250 : 0);
+    const timer = setTimeout(() => fetchResults(), query ? 250 : 0);
     return () => clearTimeout(timer);
   }, [query]);
 
-  function handleSelect(t) {
-    onSelect(t);
-    setQuery("");
-    setResults([]);
-    setOpen(false);
-  }
-
+  function handleSelect(t) { onSelect(t); setQuery(""); setResults([]); setOpen(false); }
   function handleClear() { onSelect(null); setQuery(""); setResults([]); setOpen(false); }
-
   function handleFocus() {
     setOpen(true);
     setRect(inputRef.current?.getBoundingClientRect());
+    fetchResults(query);
   }
 
   return (
@@ -853,33 +864,28 @@ export function ProductSearch({ onSelect, selected, placeholder = "Search produc
     return () => document.removeEventListener("mousedown", outside);
   }, []);
 
+  const fetchResults = useCallback(async (q = query) => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/products?search=${encodeURIComponent(q.trim())}`);
+      const data = await res.json();
+      setResults(Array.isArray(data) ? data : []);
+      setRect(inputRef.current?.getBoundingClientRect());
+    } catch { setResults([]); }
+    finally { setLoading(false); }
+  }, [query]);
+
   useEffect(() => {
-    const q = query.trim();
-    const timer = setTimeout(async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/products?search=${encodeURIComponent(q)}`);
-        const data = await res.json();
-        setResults(Array.isArray(data) ? data : []);
-        setRect(inputRef.current?.getBoundingClientRect());
-      } catch { setResults([]); }
-      finally { setLoading(false); }
-    }, q ? 250 : 0);
+    const timer = setTimeout(() => fetchResults(), query ? 250 : 0);
     return () => clearTimeout(timer);
   }, [query]);
 
-  function handleSelect(p) {
-    onSelect(p);
-    setQuery("");
-    setResults([]);
-    setOpen(false);
-  }
-
+  function handleSelect(p) { onSelect(p); setQuery(""); setResults([]); setOpen(false); }
   function handleClear() { onSelect(null); setQuery(""); setResults([]); setOpen(false); }
-
   function handleFocus() {
     setOpen(true);
     setRect(inputRef.current?.getBoundingClientRect());
+    fetchResults(query);
   }
 
   return (
