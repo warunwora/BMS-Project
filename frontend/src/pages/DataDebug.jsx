@@ -20,7 +20,7 @@ export default function DataDebug() {
 
     Promise.all(
       endpoints.map(({ url, setter }) =>
-        fetch(`http://localhost:4000${url}`)
+        fetch(`${url}`)
           .then(r => r.json())
           .then(setter)
           .catch(e => console.error(`Error loading ${url}:`, e))
