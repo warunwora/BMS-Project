@@ -111,7 +111,7 @@ router.post("/", async (req, res) => {
           racket_model_product_id: i.racket_model_product_id ?? null,
           product_id: i.product_id ?? null,
           service_id: i.service_id ?? null,
-          tension_required: i.tension_required ?? null,
+          tension_required: i.tension ?? null,
           material_cost: parseFloat(i.material_cost) || 0,
           labor_fee: parseFloat(i.labor_fee) || 0,
           line_total: (parseFloat(i.material_cost) || 0) + (parseFloat(i.labor_fee) || 0),
