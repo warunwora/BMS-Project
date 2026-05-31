@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Printer, Trash2 } from "lucide-react";
+import { Printer, Trash2, Plus } from "lucide-react";
 import { PageHeader, Button, SearchBar, DateRangePicker, FilterDropdown, FilterPills, Pagination, ExportDropdown, Tooltip, ConfirmModal } from "../../components/ui";
 import { useToast } from "../../contexts/toast";
 import { get, del } from "../../lib/api";
@@ -81,9 +81,10 @@ export default function SalesHistory() {
   return (
     <div>
       <PageHeader
-        title="Sales History"
+        title="Sales"
         actions={
           <>
+            <Button variant="primary" icon={Plus} onClick={() => nav("/sales/new")}>Add Sale</Button>
             <Tooltip text="Print a formatted sales summary">
               <Button variant="outlineBlue" icon={Printer} onClick={handlePrintHistory}>Print History</Button>
             </Tooltip>

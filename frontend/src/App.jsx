@@ -67,10 +67,9 @@ export default function App() {
         <Route path="coaching/:id" element={<SessionDetail />} />
         <Route path="coaching/:id/edit" element={<SessionEdit />} />
 
-        <Route path="pos" element={<POS />} />
-        <Route path="pos/receipt/:id" element={<Receipt />} />
-
         <Route path="sales" element={<SalesHistory />} />
+        <Route path="sales/new" element={<POS />} />
+        <Route path="sales/receipt/:id" element={<Receipt />} />
         <Route path="sales/points" element={<PointsAnalysis />} />
 
         <Route path="data" element={<Navigate to="/data/members" replace />} />

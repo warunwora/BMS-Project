@@ -33,12 +33,18 @@ html, body, #root {
   to   { transform: scaleY(1); opacity: 1; }
 }
 
-.animate-slide-up     { animation: slide-up     0.25s ease-out forwards; }
+/* .animate-slide-up     { animation: slide-up     0.25s ease-out forwards; }
 .animate-fade-in      { animation: fade-in      0.2s  ease-out forwards; }
 .animate-fade-in-down { animation: fade-in-down 0.3s  ease-out forwards; }
 .animate-text-in      { animation: text-in      0.25s ease-out forwards; }
-.animate-grow-up      { transform-origin: bottom; animation: grow-up 0.6s ease-out forwards; }
-
+.animate-grow-up      { transform-origin: bottom; animation: grow-up 0.6s ease-out forwards; } */
+.animate-slide-up,
+.animate-fade-in,
+.animate-fade-in-down,
+.animate-text-in,
+.animate-grow-up {
+  animation: none !important;
+}
 /* ── Print ──────────────────────────────────────────────────────────────── */
 
 @media print {

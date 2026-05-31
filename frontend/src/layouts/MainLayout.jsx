@@ -7,11 +7,10 @@ const mainItems = [
   { to: "/rental",      label: "Equipment Rental",    icon: ShoppingCart, tip: "Rent equipment to members" },
   { to: "/restringing", label: "Restringing Service", icon: Wrench,       tip: "Manage restringing work orders" },
   { to: "/coaching",    label: "Coaching Session",    icon: Clock,        tip: "Book and track coaching sessions" },
-  { to: "/pos",         label: "Point of Sale",       icon: Monitor,      tip: "Process retail sales" },
+  { to: "/sales",       label: "Sales",               icon: Monitor,      tip: "Sales transactions and analytics" },
 ];
 
 const dataItems = [
-  { to: "/sales", label: "Sales History",   icon: ShoppingBag, tip: "View transactions and analytics" },
   { to: "/data",  label: "Data Management", icon: FileText,    tip: "Members, courts, assets, products, coaches" },
 ];
 
