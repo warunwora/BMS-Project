@@ -1,4 +1,4 @@
-const BASE = "http://localhost:4000/api";
+const BASE = "/api";
 
 export async function get(path, params = {}) {
   const qs = new URLSearchParams(Object.entries(params).filter(([, v]) => v != null && v !== ""));
