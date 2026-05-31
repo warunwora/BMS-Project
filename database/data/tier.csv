@@ -1,0 +1,4 @@
+id	name	min_point	discount_percentage	point_multiplier
+1	Bronze	0	5	1.05
+2	Silver	100	7	1.7
+3	Gold	500	10	1.1

@@ -1,0 +1,21 @@
+id,code,type,brand,purchase_date,price
+1,R001,racket,Yonex,2026-01-01,60
+2,R002,racket,Victor,2026-01-14,70
+3,R003,shoes,Victor,2026-01-22,60
+4,R004,shoes,Asics,2026-01-25,70
+5,R005,racket,Babolat,2026-02-01,68
+6,R006,racket,Wilson,2026-02-05,78
+7,R007,racket,Apacs,2026-02-10,55
+8,R008,racket,Carlton,2026-02-15,60
+9,R009,shoes,Mizuno,2026-02-02,92
+10,R010,shoes,Adidas,2026-02-08,98
+11,R011,shoes,Nike,2026-02-12,100
+12,R012,shoes,Puma,2026-02-18,85
+13,R013,bag,Head,2026-02-03,42
+14,R014,bag,Dunlop,2026-02-09,48
+15,R015,bag,Prince,2026-02-14,52
+16,R016,net,Spalding,2026-02-04,33
+17,R017,net,Molten,2026-02-11,37
+18,R018,accessory,Under Armour,2026-02-06,25
+19,R019,accessory,Decathlon,2026-02-13,20
+20,R020,accessory,Kawasaki,2026-02-20,23

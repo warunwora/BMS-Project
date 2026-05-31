@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:13
+    container_name: pgdatabase
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: badminton
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    networks:
+      - badminton-net
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - badminton-net
+
+networks:
+  badminton-net:
+    driver: bridge

@@ -1,0 +1,5 @@
+﻿id,code,type,brand,purchase_date,price
+1,R001,racket,Yonex,2026-01-01,60
+2,R002,racket,Victor,2026-01-14,70
+3,R003,shoes,Victor,2026-01-22,60
+4,R004,shoes,Asics,2026-01-25,70

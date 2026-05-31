@@ -1,0 +1,21 @@
+id,name,phone,mail,detail,gender,tier_id,current_reward_point,lifetime point
+1,Gain Eger,0812345678,gain@example.com,Regular customer,M,1,120,450
+2,Charlie Kirk,0823456788,charlie@example.com,VIP member,M,3,300,900
+3,Kim Joung Un,0834567889,kim@example.com,Premium member,M,2,500,1500
+4,Nate Higger,0845678901,nate@example.com,Regular member,M,1,80,220
+5,Sam Sung,0856789012,samsung@example.com,New member,F,1,40,40
+6,Knee Jar,0867890123,knee@example.com,Regular member,F,1,60,200
+7,Lee Chong,0878901234,leechong@example.com,Badminton player,M,2,250,700
+8,Meaw Meaw,0889012345,meaw@example.com,Cat lover,F,1,90,300
+9,Mc Burger,0890123456,burger@example.com,Food member,M,2,150,420
+10,New Gersy,0801234567,jersey@example.com,New customer,F,1,20,20
+11,Alex Tan,0812345690,alex@example.com,Regular member,M,1,110,400
+12,Bella Lim,0823456791,bella@example.com,VIP member,F,3,320,950
+13,Chris Wong,0834567892,chris@example.com,Badminton enthusiast,M,2,270,720
+14,Diana Lee,0845678903,diana@example.com,Premium member,F,2,480,1300
+15,Ethan Koh,0856789014,ethan@example.com,New member,M,1,60,100
+16,Fiona Goh,0867890125,fiona@example.com,Regular member,F,1,140,350
+17,George Tan,0878901236,george@example.com,VIP member,M,3,350,1000
+18,Hannah Lim,0889012347,hannah@example.com,Casual player,F,1,90,250
+19,Ivan Chua,0890123458,ivan@example.com,Advanced player,M,2,400,1100
+20,Jasmine Ong,0801234569,jasmine@example.com,New member,F,1,30,50
