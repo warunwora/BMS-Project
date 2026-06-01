@@ -173,6 +173,7 @@ export default function CreateWorkOrder() {
                   selected={racketModel}
                   onSelect={setRacketModel}
                   placeholder="Search racket model..."
+                  category="racket"
                 />
               </Field>
               <Field label="String / Material Product">

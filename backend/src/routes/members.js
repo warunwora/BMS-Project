@@ -16,6 +16,7 @@ function norm(m) {
     lifetime_points: m.lifetime_points ?? m["lifetime_point"] ?? 0,
     gender: m.gender === "M" ? "Male" : m.gender === "F" ? "Female" : (m.gender ?? "Male"),
     tier_id: m.tier_id ?? 1,
+    tier_name: m.tier?.name ?? "Bronze",
   };
 }
 
@@ -41,7 +42,7 @@ async function denorm(body) {
 router.get("/", async (req, res) => {
   try {
     const { search, tier } = req.query;
-    let query = supabase.from("member").select("*");
+    let query = supabase.from("member").select("*, tier(*)");
 
     if (search) {
       const num = parseInt(search);
@@ -63,7 +64,7 @@ router.get("/:id", async (req, res) => {
   try {
     const { data, error } = await supabase
       .from("member")
-      .select("*")
+      .select("*, tier(*)")
       .eq("id", req.params.id)
       .single();
 

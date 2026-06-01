@@ -42,7 +42,7 @@ export default function DataMembers() {
         <FilterDropdown label="Tier" options={["Bronze", "Silver", "Gold", "Premium"]} value={tierFilter} onChange={setTierFilter} />
       </div>
       <div className="grid grid-cols-[0.5fr_1.5fr_1.5fr_0.8fr_1fr_auto] text-sm text-slate-400 py-4 px-2 border-t border-slate-100">
-        <div>ID</div><div>Name</div><div>Phone</div><div>Tier ID</div><div>Current Points</div><div></div>
+        <div>ID</div><div>Name</div><div>Phone</div><div>Tier</div><div>Current Points</div><div></div>
       </div>
       {loading && <div className="py-8 text-center text-sm text-slate-400">Loading...</div>}
       {!loading && filtered.length === 0 && <div className="py-8 text-center text-sm text-slate-400">No members found.</div>}
@@ -51,7 +51,7 @@ export default function DataMembers() {
           <div className="font-semibold">{r.id}</div>
           <div className="font-semibold">{r.name}</div>
           <div>{r.phone}</div>
-          <div>{r.tier_id}</div>
+          <div>{r.tier_name}</div>
           <div>{r.points ?? 0}</div>
           <div onClick={(e) => e.stopPropagation()}>
             <RowActions onEdit={() => nav("/data/members/" + r.id)} onDelete={() => handleDelete(r.id, r.name)} />

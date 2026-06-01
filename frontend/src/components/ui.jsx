@@ -615,7 +615,7 @@ export function MemberSearch({ onSelect, selected, placeholder = "Search name, I
           <div className="flex-1 min-w-0">
             <span className="font-semibold text-indigo-700 text-sm">{selected.name}</span>
             <span className="text-indigo-400 text-sm ml-2">{selected.phone}</span>
-            {selected.tier_id && <span className="ml-2 text-xs text-indigo-400">({selected.tier_id})</span>}
+            {selected.tier_name && <span className="ml-2 text-xs text-indigo-400">({selected.tier_name})</span>}
           </div>
           <button onClick={handleClear} className="text-indigo-300 hover:text-rose-500 transition-colors"><X className="w-4 h-4" /></button>
         </div>
@@ -651,7 +651,7 @@ export function MemberSearch({ onSelect, selected, placeholder = "Search name, I
               >
                 <div className="font-semibold text-slate-900 truncate">{m.name}</div>
                 <div className="text-slate-500">{m.phone}</div>
-                <div className="text-slate-500">{m.tier_id}</div>
+                <div className="text-slate-500">{m.tier_name}</div>
                 <div className="text-indigo-500 font-medium">{m.points ?? 0}</div>
               </button>
             ))}
@@ -663,11 +663,12 @@ export function MemberSearch({ onSelect, selected, placeholder = "Search name, I
   );
 }
 
-export function CoachSearch({ onSelect, selected }) {
+export function CoachSearch({ onSelect, selected, placeholder = "Search coach name, ID or phone" }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [open, setOpen] = useState(false);
   const [rect, setRect] = useState(null);
+  const [loading, setLoading] = useState(false);
   const inputRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -679,16 +680,19 @@ export function CoachSearch({ onSelect, selected }) {
     return () => document.removeEventListener("mousedown", outside);
   }, []);
 
+  const fetchResults = useCallback(async (q = query) => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/coaches?search=${encodeURIComponent(q.trim())}`);
+      const data = await res.json();
+      setResults(Array.isArray(data) ? data : []);
+      setRect(inputRef.current?.getBoundingClientRect());
+    } catch { setResults([]); }
+    finally { setLoading(false); }
+  }, [query]);
+
   useEffect(() => {
-    const q = query.trim();
-    const timer = setTimeout(async () => {
-      try {
-        const res = await fetch(`/api/coaches?search=${encodeURIComponent(q)}`);
-        const data = await res.json();
-        setResults(Array.isArray(data) ? data : []);
-        setRect(inputRef.current?.getBoundingClientRect());
-      } catch { setResults([]); }
-    }, q ? 250 : 0);
+    const timer = setTimeout(() => fetchResults(), query ? 250 : 0);
     return () => clearTimeout(timer);
   }, [query]);
 
@@ -698,6 +702,7 @@ export function CoachSearch({ onSelect, selected }) {
   function handleFocus() {
     setOpen(true);
     setRect(inputRef.current?.getBoundingClientRect());
+    fetchResults(query);
   }
 
   return (
@@ -717,10 +722,12 @@ export function CoachSearch({ onSelect, selected }) {
           <input
             ref={inputRef}
             className="w-full pl-12 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
-            placeholder="Search coach name"
+            placeholder={placeholder}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onFocus={handleFocus}
           />
+          {loading && <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400">...</div>}
         </div>
       )}
       {open && results.length > 0 && rect && createPortal(
@@ -847,7 +854,7 @@ export function TechnicianSearch({ onSelect, selected, placeholder = "Search tec
   );
 }
 
-export function ProductSearch({ onSelect, selected, placeholder = "Search product name or code", label = "Product" }) {
+export function ProductSearch({ onSelect, selected, placeholder = "Search product name or code", label = "Product", category }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [open, setOpen] = useState(false);
@@ -867,13 +874,16 @@ export function ProductSearch({ onSelect, selected, placeholder = "Search produc
   const fetchResults = useCallback(async (q = query) => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/products?search=${encodeURIComponent(q.trim())}`);
+      const url = new URL(`/api/products`, window.location.origin);
+      url.searchParams.set("search", q.trim());
+      if (category) url.searchParams.set("category", category);
+      const res = await fetch(url);
       const data = await res.json();
       setResults(Array.isArray(data) ? data : []);
       setRect(inputRef.current?.getBoundingClientRect());
     } catch { setResults([]); }
     finally { setLoading(false); }
-  }, [query]);
+  }, [query, category]);
 
   useEffect(() => {
     const timer = setTimeout(() => fetchResults(), query ? 250 : 0);
