@@ -1,0 +1,20 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "BMS Backend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "/Users/tnnntst/Documents/GitHub/BMS-Project/backend",
+      "port": 4000,
+      "autoPort": false
+    },
+    {
+      "name": "BMS Frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "/Users/tnnntst/Documents/GitHub/BMS-Project/frontend",
+      "port": 5173
+    }
+  ]
+}

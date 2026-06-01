@@ -1,0 +1,26 @@
+name: bms
+
+services:
+  database:
+    image: postgres:17-alpine
+    container_name: bms-db
+    restart: unless-stopped
+    shm_size: 128mb
+    ports:
+      - "${PORT_DB:-15433}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-root}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
+      POSTGRES_DB: ${POSTGRES_DB:-bms_db}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+    name: bms_pgdata

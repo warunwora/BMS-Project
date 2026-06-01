@@ -1,6 +1,7 @@
-# Badminton Club Management System
+# Badminton Club Management System (BMS)
 
 An ERP-style web platform for managing the daily operations of a badminton facility.
+Three-tier application: **React (Vite) client · Node.js/Express server · PostgreSQL database**.
 
 ## Modules
 
@@ -11,92 +12,82 @@ An ERP-style web platform for managing the daily operations of a badminton facil
 | Restringing Service | Manage stringing work orders, charge materials & labour |
 | Pro-Shop POS | Sell goods, redeem reward points as payment |
 | Coaching Session | Book coaching slots, apply member tier discounts |
-| Member Loyalty | Bronze / Silver / Gold tiers with point multipliers |
+| Data Management | CRUD for members, courts, assets, products, coaches |
+| Sales History | Transaction log + points analysis report |
 
 ## Tech Stack
 
-- **Frontend** — React 18, Vite, Tailwind CSS
-- **Backend** — Node.js, Express
-- **Database** — Supabase (PostgreSQL)
+- **client** — React 19, Vite, Tailwind CSS, React Router
+- **server** — Node.js, Express, `pg` (PostgreSQL driver), Zod, Winston
+- **database** — PostgreSQL 17 (Docker)
 
 ## Requirements
 
-- Node.js 18 or higher
-- npm
+- Node.js 20+
+- Docker (for the PostgreSQL database)
 
-## Quick Start
+## Quick Start (local dev)
 
-### 1. Clone
-
+### 1. Database (Docker)
 ```bash
-git clone https://github.com/warunwora/BMS-Project.git
-cd BMS-Project
+npm run db:start          # starts postgres on port 15433, auto-runs schema + seed
 ```
 
-### 2. Backend setup
-
+### 2. Server
 ```bash
-cd backend
+cd server
 cp .env.example .env
-```
-
-Edit `backend/.env` with your Supabase credentials:
-
-```
-SUPABASE_URL=https://your-project-ref.supabase.co
-SUPABASE_ANON_KEY=your-anon-key
-PORT=4000
-```
-
-```bash
 npm install
-npm run dev
+npm run dev               # http://localhost:4000
 ```
 
-Backend runs on **http://localhost:4000**
-
-### 3. Frontend setup
-
-Open a new terminal:
-
+### 3. Client
 ```bash
-cd frontend
+cd client
 cp .env.example .env.local
-```
-
-Edit `frontend/.env.local` with your Supabase credentials:
-
-```
-VITE_SUPABASE_URL=https://your-project-ref.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-```
-
-```bash
 npm install
-npm run dev
+npm run dev               # http://localhost:5173
 ```
 
-Frontend runs on **http://localhost:5173**
-
-## Project Structure
-
+### One command (from repo root)
+```bash
+npm run dev               # starts DB + installs + runs server & client together
 ```
-BMS-Project/
-├── backend/
-│   ├── src/
-│   │   ├── index.js          # Express server entry
-│   │   ├── lib/supabase.js   # Supabase client
-│   │   └── routes/           # API routes
-│   ├── .env.example
-│   └── package.json
-└── frontend/
-    ├── src/
-    │   ├── components/       # Shared UI components
-    │   ├── contexts/         # React context
-    │   ├── layouts/          # Page layout
-    │   ├── lib/              # API helpers
-    │   └── pages/            # Page components
-    ├── .env.example
-    ├── vite.config.js
-    └── package.json
+
+## Run Everything in Docker
+```bash
+npm run docker:up         # builds + runs database, server, client
+# client → http://localhost:3000  ·  server → http://localhost:4000
+npm run docker:down
 ```
+
+## Environment Variables
+
+**server/.env**
+```
+PORT=4000
+HOST=0.0.0.0
+DATABASE_URL=postgresql://root:root@localhost:15433/bms_db
+```
+
+**client/.env.local**
+```
+VITE_API_BASE=          # empty = use Vite dev proxy to localhost:4000
+```
+
+## API Summary
+
+All endpoints under `/api`. Response shape: `{ success, data, error, meta? }`.
+
+| Resource | Endpoints |
+|----------|-----------|
+| `/api/members` | list, get, create, update, delete (search by id/phone/name) |
+| `/api/courts` `/api/coaches` `/api/assets` `/api/products` | master-data CRUD |
+| `/api/bookings` | court reservations (header + line items) |
+| `/api/rentals` | equipment rentals + returns |
+| `/api/sessions` | coaching sessions |
+| `/api/work-orders` | restringing work orders |
+| `/api/receipts` | POS sales (create/get/delete) |
+| `/api/sales` | sales list + `/points` analytics |
+
+See `PROJECT_STRUCTURE.md` for the full layout.
