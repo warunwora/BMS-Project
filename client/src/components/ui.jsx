@@ -294,8 +294,6 @@ export function Table({ columns, rows, onRowClick, onEdit, onDelete }) {
   );
 }
 
-// ── New shared components ─────────────────────────────────────────────────────
-
 export function Tooltip({ children, text, position = "top" }) {
   if (!text) return children;
   const posClass = {
