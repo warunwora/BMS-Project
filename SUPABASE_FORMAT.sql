@@ -1,3 +1,6 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
 CREATE TABLE public.asset (
   id bigint NOT NULL,
   code text NOT NULL UNIQUE,
@@ -121,7 +124,7 @@ CREATE TABLE public.member (
   gender text,
   tier_id bigint,
   current_reward_point bigint,
-  lifetime point bigint,
+  lifetime_point bigint,
   CONSTRAINT member_pkey PRIMARY KEY (id),
   CONSTRAINT member_tier_id_fkey FOREIGN KEY (tier_id) REFERENCES public.tier(id)
 );
@@ -205,6 +208,7 @@ CREATE TABLE public.work_order (
   expected_finish_date date,
   status text,
   total real,
+  discount numeric,
   CONSTRAINT work_order_pkey PRIMARY KEY (id),
   CONSTRAINT workorder_member_id_fkey FOREIGN KEY (member_id) REFERENCES public.member(id),
   CONSTRAINT workorder_technician_id_fkey FOREIGN KEY (technician_id) REFERENCES public.technician(id)
