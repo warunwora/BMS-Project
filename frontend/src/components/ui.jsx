@@ -325,10 +325,14 @@ export function FilterDropdown({ label, options = [], value, onChange }) {
   const [open, setOpen] = useState(false);
   const [rect, setRect] = useState(null);
   const btnRef = useRef(null);
+  const portalRef = useRef(null);
 
   useEffect(() => {
     function outside(e) {
-      if (btnRef.current && !btnRef.current.contains(e.target)) setOpen(false);
+      if (btnRef.current && !btnRef.current.contains(e.target) &&
+          portalRef.current && !portalRef.current.contains(e.target)) {
+        setOpen(false);
+      }
     }
     document.addEventListener("mousedown", outside);
     return () => document.removeEventListener("mousedown", outside);
@@ -354,6 +358,7 @@ export function FilterDropdown({ label, options = [], value, onChange }) {
       </Tooltip>
       {open && rect && createPortal(
         <div
+          ref={portalRef}
           style={{ position: "fixed", top: rect.bottom + 4, right: window.innerWidth - rect.right, zIndex: 9999 }}
           className="bg-white border border-slate-200 rounded-xl shadow-lg py-1 min-w-[160px] animate-fade-in"
         >
@@ -377,10 +382,14 @@ export function DateRangePicker({ from, to, onChange }) {
   const [open, setOpen] = useState(false);
   const [rect, setRect] = useState(null);
   const btnRef = useRef(null);
+  const portalRef = useRef(null);
 
   useEffect(() => {
     function outside(e) {
-      if (btnRef.current && !btnRef.current.contains(e.target)) setOpen(false);
+      if (btnRef.current && !btnRef.current.contains(e.target) &&
+          portalRef.current && !portalRef.current.contains(e.target)) {
+        setOpen(false);
+      }
     }
     document.addEventListener("mousedown", outside);
     return () => document.removeEventListener("mousedown", outside);
@@ -414,6 +423,7 @@ export function DateRangePicker({ from, to, onChange }) {
       </Tooltip>
       {open && rect && createPortal(
         <div
+          ref={portalRef}
           style={{ position: "fixed", top: rect.bottom + 4, right: window.innerWidth - rect.right, zIndex: 9999 }}
           className="bg-white border border-slate-200 rounded-xl shadow-lg p-4 flex gap-4 animate-fade-in"
         >
@@ -451,9 +461,15 @@ export function ExportDropdown({ data = [], filename = "export", onPrint }) {
   const [open, setOpen] = useState(false);
   const [rect, setRect] = useState(null);
   const ref = useRef(null);
+  const portalRef = useRef(null);
 
   useEffect(() => {
-    function outside(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    function outside(e) {
+      if (ref.current && !ref.current.contains(e.target) &&
+          portalRef.current && !portalRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
     document.addEventListener("mousedown", outside);
     return () => document.removeEventListener("mousedown", outside);
   }, []);
@@ -528,6 +544,7 @@ export function ExportDropdown({ data = [], filename = "export", onPrint }) {
       </Tooltip>
       {open && rect && createPortal(
         <div
+          ref={portalRef}
           style={{ position: "fixed", top: rect.bottom + 4, right: window.innerWidth - rect.right, zIndex: 9999 }}
           className="bg-white border border-slate-200 rounded-xl shadow-lg py-1 min-w-[160px] animate-fade-in"
         >
