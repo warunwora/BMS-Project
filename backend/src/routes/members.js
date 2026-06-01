@@ -3,29 +3,38 @@ import { supabase } from "../lib/supabase.js";
 
 const router = Router();
 
-const TIER = { 1: "Bronze", 2: "Silver", 3: "Gold", 4: "Premium" };
-const TIER_REV = { Bronze: 1, Silver: 2, Gold: 3, Premium: 4 };
+async function getTierByName(name) {
+  const { data } = await supabase.from("tier").select("id").eq("name", name).single();
+  return data?.id ?? null;
+}
 
 function norm(m) {
   return {
     ...m,
     email: m.email ?? m.mail ?? "",
     points: m.points ?? m.current_reward_point ?? 0,
-    lifetime_points: m.lifetime_points ?? m["lifetime point"] ?? 0,
+    lifetime_points: m.lifetime_points ?? m["lifetime_point"] ?? 0,
     gender: m.gender === "M" ? "Male" : m.gender === "F" ? "Female" : (m.gender ?? "Male"),
     tier_id: m.tier_id ?? 1,
   };
 }
 
-function denorm(body) {
+async function denorm(body) {
   const { email, points, lifetime_points, gender, tier_id, id, ...rest } = body;
+
+  let resolvedTierId = tier_id;
+  if (typeof tier_id === "string") {
+    const found = await getTierByName(tier_id);
+    if (found !== null) resolvedTierId = found;
+  }
+
   return {
     ...rest,
     mail: email ?? rest.mail,
     current_reward_point: points != null ? points : rest.current_reward_point,
-    "lifetime point": lifetime_points != null ? lifetime_points : rest["lifetime point"],
+    "lifetime_point": lifetime_points != null ? lifetime_points : rest["lifetime_point"],
     gender: gender === "Male" ? "M" : gender === "Female" ? "F" : gender,
-    tier_id: TIER_REV[tier_id] ?? tier_id,
+    tier_id: resolvedTierId,
   };
 }
 
@@ -40,9 +49,8 @@ router.get("/", async (req, res) => {
       query = isNaN(num) ? query.or(orFilter) : query.or(`${orFilter},id.eq.${num}`);
     }
     if (tier) {
-      const tierNum = TIER_REV[tier];
-      if (tierNum) query = query.eq("tier_id", tierNum);
-      else query = query.eq("tier_id", tier);
+      const tierNum = await getTierByName(tier);
+      query = query.eq("tier_id", tierNum ?? tier);
     }
 
     const { data, error } = await query;
@@ -76,7 +84,7 @@ router.post("/", async (req, res) => {
 
     const { data, error } = await supabase
       .from("member")
-      .insert([{ id: nextId, ...denorm(req.body) }])
+      .insert([{ id: nextId, ...await denorm(req.body) }])
       .select();
 
     if (error) throw error;
@@ -88,7 +96,7 @@ router.put("/:id", async (req, res) => {
   try {
     const { data, error } = await supabase
       .from("member")
-      .update(denorm(req.body))
+      .update(await denorm(req.body))
       .eq("id", req.params.id)
       .select();
 
