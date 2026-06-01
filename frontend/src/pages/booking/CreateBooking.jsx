@@ -4,6 +4,7 @@ import { Trash2 } from "lucide-react";
 import { PageTitle, Button, Card, Field, Select, Tooltip, MemberSearch } from "../../components/ui";
 import { useToast } from "../../contexts/toast";
 import { get, post } from "../../lib/api";
+import { calculateDiscount, calculatePoints } from "../../lib/tierCalculations";
 
 function SummaryRow({ label, value }) {
   return (
@@ -34,11 +35,34 @@ export default function CreateBooking() {
   const [courtRows, setCourtRows] = useState([]);
   const [courtsLoading, setCourtsLoading] = useState(true);
   const [errors, setErrors] = useState({});
+  const [discount, setDiscount] = useState(0);
+  const [pointsEarned, setPointsEarned] = useState(0);
 
   useEffect(() => {
     setCourtsLoading(true);
     get("/courts").then(setCourts).catch((e) => toast(e.message, "error")).finally(() => setCourtsLoading(false));
   }, []);
+
+  useEffect(() => {
+    async function updateCalculations() {
+      const subtotal = courtRows.reduce((sum, r) => sum + HOURLY_RATE * r.hours, 0);
+      if (!subtotal || !member?.id) {
+        setDiscount(0);
+        setPointsEarned(0);
+        return;
+      }
+      try {
+        const disc = await calculateDiscount(subtotal, member.tier_id);
+        const net = subtotal - disc;
+        const pts = await calculatePoints(net, member.tier_id);
+        setDiscount(disc);
+        setPointsEarned(pts);
+      } catch (e) {
+        toast(e.message, "error");
+      }
+    }
+    updateCalculations();
+  }, [courtRows, member]);
 
 
   function calcHours(start, end) {
@@ -73,7 +97,9 @@ export default function CreateBooking() {
         play_date: playDate,
         status: "Upcoming",
         subtotal: subtotal.toFixed(2),
-        net_amount: subtotal.toFixed(2),
+        discount: discount.toFixed(2),
+        net_amount: (subtotal - discount).toFixed(2),
+        points_earned: pointsEarned,
         courts: courtRows.map(({ court_id, date, start_time, end_time, hours }) => ({ court_id, date, start_time, end_time, hours })),
       });
       toast("Booking created successfully");
@@ -151,13 +177,13 @@ export default function CreateBooking() {
 
         <Card title="Summary & Payment">
           <SummaryRow label="Subtotal"      value={subtotal.toFixed(2)} />
-          <SummaryRow label="Discount"      value="0.00" />
+          <SummaryRow label="Discount"      value={discount.toFixed(2)} />
           <div className="border-t border-slate-100 my-4" />
-          <SummaryRow label="Net Amount Due" value={subtotal.toFixed(2)} />
+          <SummaryRow label="Net Amount Due" value={(subtotal - discount).toFixed(2)} />
           <div className="border-t border-slate-100 my-4" />
           <div className="flex justify-between items-center mb-5">
             <span className="text-sm text-slate-500">Points Earned</span>
-            <span className="text-base font-bold text-indigo-600">+{Math.floor(subtotal / 10)}</span>
+            <span className="text-base font-bold text-indigo-600">+{pointsEarned}</span>
           </div>
           <Tooltip text="Confirm and save booking">
             <Button className="w-full mb-3" onClick={handleConfirm}>Confirm Booking</Button>

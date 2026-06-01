@@ -4,6 +4,7 @@ import { Printer, Trash2 } from "lucide-react";
 import { PageHeader, Button, Card, Field, Input, Select, Plus, Tooltip, MemberSearch } from "../../components/ui";
 import { useToast } from "../../contexts/toast";
 import { get, post } from "../../lib/api";
+import { calculateDiscount, calculatePoints } from "../../lib/tierCalculations";
 
 function Row({ label, value }) {
   return (
@@ -25,9 +26,32 @@ export default function POS() {
   const [items, setItems] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState("");
   const [pointsRedeem, setPointsRedeem] = useState(0);
+  const [discount, setDiscount] = useState(0);
+  const [pointsEarned, setPointsEarned] = useState(0);
   const [errors, setErrors] = useState({});
 
   useEffect(() => { get("/products").then(setProducts).catch((e) => toast(e.message, "error")); }, []);
+
+  useEffect(() => {
+    async function updateCalculations() {
+      const subtotal = items.reduce((s, i) => s + parseFloat(i.ext_price || 0), 0);
+      if (!subtotal || !member?.id) {
+        setDiscount(0);
+        setPointsEarned(0);
+        return;
+      }
+      try {
+        const disc = await calculateDiscount(subtotal, member.tier_id);
+        const net = subtotal - disc;
+        const pts = await calculatePoints(net, member.tier_id);
+        setDiscount(disc);
+        setPointsEarned(pts);
+      } catch (e) {
+        toast(e.message, "error");
+      }
+    }
+    updateCalculations();
+  }, [items, member]);
 
 
   function addItem() {
@@ -43,7 +67,6 @@ export default function POS() {
   function removeItem(i) { setItems((prev) => prev.filter((_, idx) => idx !== i)); }
 
   const subtotal = items.reduce((s, i) => s + parseFloat(i.ext_price || 0), 0);
-  const discount = Math.min(pointsRedeem * 0.1, subtotal);
   const net = Math.max(subtotal - discount, 0);
 
   async function handleConfirm() {
@@ -58,7 +81,7 @@ export default function POS() {
         discount: discount.toFixed(2),
         points_redeemed: pointsRedeem,
         net_amount: net.toFixed(2),
-        points_earned: Math.floor(net / 10),
+        points_earned: pointsEarned,
         items: items.map(({ product_id, unit_price, qty, ext_price }) => ({ product_id, unit_price, qty, ext_price })),
       });
       toast("Sale completed successfully");
@@ -138,7 +161,7 @@ export default function POS() {
           <div className="border-t border-slate-100 my-4" />
           <div className="flex justify-between mb-5">
             <span className="text-sm text-slate-500">Points Earned</span>
-            <span className="text-base font-bold text-indigo-600">+{Math.floor(net / 10)}</span>
+            <span className="text-base font-bold text-indigo-600">+{pointsEarned}</span>
           </div>
           <Tooltip text="Complete and save this sale">
             <Button className="w-full mb-3" onClick={handleConfirm}>Confirm</Button>

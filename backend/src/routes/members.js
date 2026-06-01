@@ -13,7 +13,7 @@ function norm(m) {
     points: m.points ?? m.current_reward_point ?? 0,
     lifetime_points: m.lifetime_points ?? m["lifetime point"] ?? 0,
     gender: m.gender === "M" ? "Male" : m.gender === "F" ? "Female" : (m.gender ?? "Male"),
-    tier_id: TIER[m.tier_id] ?? m.tier_id ?? "Bronze",
+    tier_id: m.tier_id ?? 1,
   };
 }
 

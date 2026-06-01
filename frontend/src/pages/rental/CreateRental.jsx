@@ -4,6 +4,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { PageTitle, Button, Card, Field, Select, Plus, MemberSearch } from "../../components/ui";
 import { useToast } from "../../contexts/toast";
 import { get, post } from "../../lib/api";
+import { calculateDiscount, calculatePoints } from "../../lib/tierCalculations";
 
 function Row({ label, value, color = "" }) {
   return (
@@ -23,8 +24,31 @@ export default function CreateRental() {
   const [items, setItems] = useState([]);
   const [selectedAsset, setSelectedAsset] = useState("");
   const [errors, setErrors] = useState({});
+  const [discount, setDiscount] = useState(0);
+  const [pointsEarned, setPointsEarned] = useState(0);
 
   useEffect(() => { get("/assets").then(setAssets); }, []);
+
+  useEffect(() => {
+    async function updateCalculations() {
+      const total = items.reduce((s, i) => s + parseFloat(i.rate || 0), 0);
+      if (!total || !member?.id) {
+        setDiscount(0);
+        setPointsEarned(0);
+        return;
+      }
+      try {
+        const disc = await calculateDiscount(total, member.tier_id);
+        const net = total - disc;
+        const pts = await calculatePoints(net, member.tier_id);
+        setDiscount(disc);
+        setPointsEarned(pts);
+      } catch (e) {
+        toast(e.message, "error");
+      }
+    }
+    updateCalculations();
+  }, [items, member]);
 
 
   function addItem() {
@@ -49,6 +73,8 @@ export default function CreateRental() {
         date: today,
         status: "Rented",
         total_fee: total.toFixed(2),
+        discount: discount.toFixed(2),
+        points_earned: pointsEarned,
         items: items.map(({ asset_id, condition_out, rate, deposit }) => ({ asset_id, condition_out, rate, deposit })),
       });
       toast("Rental created successfully");
@@ -100,12 +126,12 @@ export default function CreateRental() {
         <Card title="Summary & Payment">
           <Row label="Total Rental Fee" value={total.toFixed(2)} />
           <Row label="Total Deposit" value="0.00" color="text-emerald-600" />
-          <Row label="Member Discount" value="0.00" />
+          <Row label="Member Discount" value={discount.toFixed(2)} />
           <div className="border-t border-slate-100 my-4"></div>
-          <Row label="Amount to Collect" value={total.toFixed(2)} />
+          <Row label="Amount to Collect" value={(total - discount).toFixed(2)} />
           <div className="flex justify-between items-center py-1 mb-4">
             <span className="text-sm text-slate-500">Points Earned</span>
-            <span className="text-base font-bold text-indigo-600">+{Math.floor(total / 10)}</span>
+            <span className="text-base font-bold text-indigo-600">+{pointsEarned}</span>
           </div>
           <Button className="w-full mb-3" onClick={handleConfirm}>Confirm Rental</Button>
           <Button variant="dangerOutline" className="w-full" onClick={() => nav(-1)}>Cancel</Button>

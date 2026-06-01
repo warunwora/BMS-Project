@@ -4,6 +4,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { PageTitle, Button, Card, Field, Input, Plus, MemberSearch, CoachSearch } from "../../components/ui";
 import { useToast } from "../../contexts/toast";
 import { get, post } from "../../lib/api";
+import { calculateDiscount, calculatePoints } from "../../lib/tierCalculations";
 
 function Row({ label, value }) {
   return (
@@ -23,6 +24,8 @@ export default function BookSession() {
   const [slots, setSlots] = useState([]);
   const [newSlot, setNewSlot] = useState({ training_date: "", start_time: "", end_time: "", skill_focus: "" });
   const [errors, setErrors] = useState({});
+  const [discount, setDiscount] = useState(0);
+  const [pointsEarned, setPointsEarned] = useState(0);
 
 
   function calcHours(start, end) {
@@ -41,6 +44,27 @@ export default function BookSession() {
 
   function removeSlot(i) { setSlots((s) => s.filter((_, idx) => idx !== i)); }
 
+  useEffect(() => {
+    async function updateCalculations() {
+      const subtotal = slots.reduce((s, sl) => s + parseFloat(sl.extended_fee || 0), 0);
+      if (!subtotal || !member?.id) {
+        setDiscount(0);
+        setPointsEarned(0);
+        return;
+      }
+      try {
+        const disc = await calculateDiscount(subtotal, member.tier_id);
+        const net = subtotal - disc;
+        const pts = await calculatePoints(net, member.tier_id);
+        setDiscount(disc);
+        setPointsEarned(pts);
+      } catch (e) {
+        toast(e.message, "error");
+      }
+    }
+    updateCalculations();
+  }, [slots, member]);
+
   const subtotal = slots.reduce((s, sl) => s + parseFloat(sl.extended_fee || 0), 0);
 
   async function handleConfirm() {
@@ -57,7 +81,9 @@ export default function BookSession() {
         booking_date: today,
         skill_focus: slots[0]?.skill_focus ?? "",
         subtotal: subtotal.toFixed(2),
-        net_amount: subtotal.toFixed(2),
+        discount: discount.toFixed(2),
+        net_amount: (subtotal - discount).toFixed(2),
+        points_earned: pointsEarned,
         slots,
       });
       toast("Session booked successfully");
@@ -112,13 +138,13 @@ export default function BookSession() {
 
         <Card title="Payment Summary">
           <Row label="Subtotal" value={subtotal.toFixed(2)} />
-          <Row label="Member Discount" value="0.00" />
+          <Row label="Member Discount" value={discount.toFixed(2)} />
           <div className="border-t border-slate-100 my-4"></div>
-          <Row label="Net" value={subtotal.toFixed(2)} />
+          <Row label="Net" value={(subtotal - discount).toFixed(2)} />
           <div className="border-t border-slate-100 my-4"></div>
           <div className="flex justify-between mb-5">
             <span className="text-sm text-slate-500">Points Earned</span>
-            <span className="text-base font-bold text-indigo-600">+{Math.floor(subtotal / 10)}</span>
+            <span className="text-base font-bold text-indigo-600">+{pointsEarned}</span>
           </div>
           <Button className="w-full mb-3" onClick={handleConfirm}>Confirm Booking</Button>
           <Button variant="dangerOutline" className="w-full" onClick={() => nav(-1)}>Cancel</Button>

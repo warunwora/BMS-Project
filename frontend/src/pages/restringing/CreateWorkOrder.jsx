@@ -4,6 +4,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { PageTitle, Button, Card, Field, Input, Select, Plus, MemberSearch, TechnicianSearch, ProductSearch } from "../../components/ui";
 import { useToast } from "../../contexts/toast";
 import { get, post } from "../../lib/api";
+import { calculateDiscount, calculatePoints } from "../../lib/tierCalculations";
 
 function Row({ label, value }) {
   return (
@@ -32,11 +33,34 @@ export default function CreateWorkOrder() {
   const [tension, setTension] = useState("");
   const [materialCost, setMaterialCost] = useState("0.00");
   const [laborFee, setLaborFee] = useState("0.00");
+  const [discount, setDiscount] = useState(0);
+  const [pointsEarned, setPointsEarned] = useState(0);
 
   // Load service types
   useEffect(() => {
     get("/service-types").then(setServices).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    async function updateCalculations() {
+      const total = items.reduce((s, i) => s + parseFloat(i.material_cost || 0) + parseFloat(i.labor_fee || 0), 0);
+      if (!total || !member?.id) {
+        setDiscount(0);
+        setPointsEarned(0);
+        return;
+      }
+      try {
+        const disc = await calculateDiscount(total, member.tier_id);
+        const net = total - disc;
+        const pts = await calculatePoints(net, member.tier_id);
+        setDiscount(disc);
+        setPointsEarned(pts);
+      } catch (e) {
+        toast(e.message, "error");
+      }
+    }
+    updateCalculations();
+  }, [items, member]);
 
   // Auto-fill material cost when product is selected
   useEffect(() => {
@@ -99,7 +123,9 @@ export default function CreateWorkOrder() {
         status: "Pending",
         subtotal: totalMaterial.toFixed(2),
         total_labor: totalLabor.toFixed(2),
-        net_amount: net.toFixed(2),
+        discount: discount.toFixed(2),
+        net_amount: (net - discount).toFixed(2),
+        points_earned: pointsEarned,
         items: items.map((i) => ({
           racket_model_product_id: i.racket_model_product_id,
           product_id: i.product_id,
@@ -210,13 +236,13 @@ export default function CreateWorkOrder() {
         <Card title="Summary">
           <Row label="Total Material" value={totalMaterial.toFixed(2)} />
           <Row label="Total Labor" value={totalLabor.toFixed(2)} />
-          <Row label="Member Discount" value="0.00" />
+          <Row label="Member Discount" value={discount.toFixed(2)} />
           <div className="border-t border-slate-100 my-4"></div>
-          <Row label="Net" value={net.toFixed(2)} />
+          <Row label="Net" value={(net - discount).toFixed(2)} />
           <div className="border-t border-slate-100 my-4"></div>
           <div className="flex justify-between mb-5">
             <span className="text-sm text-slate-500">Points Earned</span>
-            <span className="text-base font-bold text-indigo-600">+{Math.floor(net / 10)}</span>
+            <span className="text-base font-bold text-indigo-600">+{pointsEarned}</span>
           </div>
           <Button className="w-full mb-3" onClick={handleSave}>Save Work Order</Button>
           <Button variant="dangerOutline" className="w-full" onClick={() => nav(-1)}>Cancel</Button>
