@@ -7,7 +7,7 @@ const mainItems = [
   { to: "/rental",      label: "Equipment Rental",    icon: ShoppingCart, tip: "Rent equipment to members" },
   { to: "/restringing", label: "Restringing Service", icon: Wrench,       tip: "Manage restringing work orders" },
   { to: "/coaching",    label: "Coaching Session",    icon: Clock,        tip: "Book and track coaching sessions" },
-  { to: "/sales",       label: "Sales",               icon: Monitor,      tip: "Sales transactions and analytics" },
+  { to: "/sales",       label: "Shop Sales",               icon: Monitor,      tip: "Sales transactions and analytics" },
 ];
 
 const dataItems = [
