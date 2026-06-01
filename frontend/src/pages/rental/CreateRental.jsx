@@ -23,6 +23,7 @@ export default function CreateRental() {
   const [member, setMember] = useState(null);
   const [items, setItems] = useState([]);
   const [selectedAsset, setSelectedAsset] = useState("");
+  const [hours, setHours] = useState("");
   const [errors, setErrors] = useState({});
   const [discount, setDiscount] = useState(0);
   const [pointsEarned, setPointsEarned] = useState(0);
@@ -31,24 +32,24 @@ export default function CreateRental() {
 
   useEffect(() => {
     async function updateCalculations() {
-      const total = items.reduce((s, i) => s + parseFloat(i.rate || 0), 0);
-      if (!total || !member?.id) {
+      if (!rateSum || !member?.id) {
         setDiscount(0);
         setPointsEarned(0);
         return;
       }
       try {
-        const disc = await calculateDiscount(total, member.tier_id);
-        const net = total - disc;
+        const discPerHour = await calculateDiscount(rateSum, member.tier_id);
+        const totalDisc = discPerHour * (parseFloat(hours) || 1);
+        const net = (rateSum - discPerHour) * (parseFloat(hours) || 1);
         const pts = await calculatePoints(net, member.tier_id);
-        setDiscount(disc);
+        setDiscount(totalDisc);
         setPointsEarned(pts);
       } catch (e) {
         toast(e.message, "error");
       }
     }
     updateCalculations();
-  }, [items, member]);
+  }, [items, member, hours]);
 
 
   function addItem() {
@@ -59,18 +60,21 @@ export default function CreateRental() {
 
   function removeItem(i) { setItems((prev) => prev.filter((_, idx) => idx !== i)); }
 
-  const total = items.reduce((s, i) => s + parseFloat(i.rate || 0), 0);
+  const rateSum = items.reduce((s, i) => s + parseFloat(i.rate || 0), 0);
+  const total = hours ? rateSum * parseFloat(hours) : 0;
 
   async function handleConfirm() {
     const e = {};
     if (!member) e.member = "Member is required";
     if (items.length === 0) e.items = "Add at least one asset";
+    if (!hours) e.hours = "Hours is required";
     if (Object.keys(e).length) { setErrors(e); return; }
     setErrors({});
     try {
       const rental = await post("/rentals", {
         member_id: member?.id,
         date: today,
+        hours: parseInt(hours),
         status: "Rented",
         total_fee: total.toFixed(2),
         discount: discount.toFixed(2),
@@ -93,6 +97,11 @@ export default function CreateRental() {
               <Field label="Member">
                 <MemberSearch selected={member} onSelect={(m) => { setMember(m); setErrors((p) => ({ ...p, member: "" })); }} />
                 {errors.member && <p className="text-xs text-red-500 mt-1">{errors.member}</p>}
+              </Field>
+            </div>
+            <div className="mt-5">
+              <Field label="Hours">
+                <input type="number" value={hours} onChange={(e) => setHours(e.target.value)} className="border border-slate-200 rounded-lg px-3 py-2 w-full text-sm" placeholder="Enter number of hours" />
               </Field>
             </div>
           </Card>

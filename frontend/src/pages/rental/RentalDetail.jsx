@@ -83,7 +83,10 @@ export default function RentalDetail() {
               <Info label="Phone" value={r.member?.phone} />
               <Info label="Tier"  value={r.member?.tier_id} />
             </div>
-            <Info label="Date" value={r.date} />
+            <div className="grid grid-cols-3 gap-6">
+              <Info label="Date" value={r.date} />
+              <Info label="Hours" value={r.hours} />
+            </div>
           </Card>
           <Card title="Asset Items">
             <div className="text-sm text-slate-500 mb-4">Total: {items.length}</div>

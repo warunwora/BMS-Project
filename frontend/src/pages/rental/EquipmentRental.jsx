@@ -46,6 +46,7 @@ export default function EquipmentRental() {
     { key: "code",      label: "Rental No" },
     { key: "date",      label: "Date" },
     { key: "member",    label: "Name",     render: (r) => r.member?.name },
+    { key: "hours",     label: "Hours" },
     { key: "total_fee", label: "Total Fee" },
     { key: "status",    label: "Status",   render: (r) => <StatusText>{r.status}</StatusText> },
   ];
