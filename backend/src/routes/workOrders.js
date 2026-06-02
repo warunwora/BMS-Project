@@ -146,7 +146,7 @@ router.post("/", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   try {
-    const { member, work_order_item, code, id, tech_id, est_finish_date, subtotal, total_labor, net_amount, discount, ...rest } = req.body;
+    const { member, work_order_item, items = [], code, id, tech_id, est_finish_date, subtotal, total_labor, net_amount, discount, points_earned, ...rest } = req.body;
     const updateData = {
       ...rest,
       technician_id: parseInt(tech_id) || null,
@@ -155,6 +155,7 @@ router.put("/:id", async (req, res) => {
       total_labor_cost: parseFloat(total_labor) || 0,
       member_discount: parseFloat(discount) || 0,
       grand_total: parseFloat(net_amount) || 0,
+      points_earned: points_earned ?? 0,
     };
     Object.keys(updateData).forEach((k) => updateData[k] === undefined && delete updateData[k]);
 
@@ -165,6 +166,28 @@ router.put("/:id", async (req, res) => {
       .select();
 
     if (error) throw error;
+
+    // Delete existing items and add new ones
+    if (items?.length) {
+      await supabase.from("work_order_line_item").delete().eq("work_order_id", req.params.id);
+      const { data: lastLine } = await supabase.from("work_order_line_item").select("id").order("id", { ascending: false }).limit(1);
+      let lineId = ((lastLine?.[0]?.id) ?? 0) + 1;
+      const { error: err2 } = await supabase.from("work_order_line_item").insert(
+        items.map((i) => ({
+          id: lineId++,
+          work_order_id: req.params.id,
+          racket_model_product_id: i.racket_model_product_id ?? null,
+          product_id: i.product_id ?? null,
+          service_id: i.service_id ?? null,
+          tension_required: i.tension ?? null,
+          material_cost: parseFloat(i.material_cost) || 0,
+          labor_fee: parseFloat(i.labor_fee) || 0,
+          line_total: (parseFloat(i.material_cost) || 0) + (parseFloat(i.labor_fee) || 0),
+        }))
+      );
+      if (err2) throw err2;
+    }
+
     res.json(norm(data[0]));
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
