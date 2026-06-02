@@ -67,7 +67,7 @@ export default function CreateWorkOrder() {
         product_code: "",
         service_id: null,
         service_name: "",
-        tension: "",
+        tension: 0,
         material_cost: "0.00",
         labor_fee: "0.00",
       },
