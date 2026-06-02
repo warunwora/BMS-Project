@@ -60,10 +60,6 @@ export default function WorkOrderEdit() {
         }));
         setItems(loadedItems);
         
-        // Set discount and points from loaded data
-        setDiscount(parseFloat(workOrder.discount || 0));
-        setPointsEarned(workOrder.points_earned || 0);
-        
         setLoading(false);
       })
       .catch((e) => {

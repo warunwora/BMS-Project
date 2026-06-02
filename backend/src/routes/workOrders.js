@@ -63,7 +63,7 @@ router.get("/:id", async (req, res) => {
   try {
     const { data: workOrder, error: err1 } = await supabase
       .from("work_order")
-      .select("*,member:member_id(name,phone,tier_id),technician:technician_id(id,name,phone,code)")
+      .select("*,member:member_id(id,name,phone,tier_id),technician:technician_id(id,name,phone,code)")
       .eq("id", req.params.id)
       .single();
 
