@@ -14,6 +14,7 @@ import CreateRental from "./pages/rental/CreateRental";
 import Restringing from "./pages/restringing/Restringing";
 import WorkOrderDetail from "./pages/restringing/WorkOrderDetail";
 import CreateWorkOrder from "./pages/restringing/CreateWorkOrder";
+import WorkOrderEdit from "./pages/restringing/WorkOrderEdit";
 
 import CoachingSession from "./pages/coaching/CoachingSession";
 import SessionDetail from "./pages/coaching/SessionDetail";
@@ -61,6 +62,7 @@ export default function App() {
         <Route path="restringing" element={<Restringing />} />
         <Route path="restringing/new" element={<CreateWorkOrder />} />
         <Route path="restringing/:id" element={<WorkOrderDetail />} />
+        <Route path="restringing/:id/edit" element={<WorkOrderEdit />} />
 
         <Route path="coaching" element={<CoachingSession />} />
         <Route path="coaching/new" element={<BookSession />} />

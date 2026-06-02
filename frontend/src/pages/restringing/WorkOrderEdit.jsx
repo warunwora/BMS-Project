@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Pencil, Trash2 } from "lucide-react";
 import { PageTitle, Button, Card, Field, Input, Select, Plus, MemberSearch, TechnicianSearch, ProductSearch } from "../../components/ui";
 import { useToast } from "../../contexts/toast";
-import { get, post } from "../../lib/api";
+import { get, put } from "../../lib/api";
 import { calculateDiscount, calculatePoints } from "../../lib/tierCalculations";
 
 function Row({ label, value }) {
@@ -15,10 +15,10 @@ function Row({ label, value }) {
   );
 }
 
-export default function CreateWorkOrder() {
+export default function WorkOrderEdit() {
+  const { id } = useParams();
   const nav = useNavigate();
   const toast = useToast();
-  const today = new Date().toISOString().split("T")[0];
   const [member, setMember] = useState(null);
   const [technician, setTechnician] = useState(null);
   const [estFinish, setEstFinish] = useState("");
@@ -28,12 +28,46 @@ export default function CreateWorkOrder() {
   const [editingIndex, setEditingIndex] = useState(null);
   const [discount, setDiscount] = useState(0);
   const [pointsEarned, setPointsEarned] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [wo, setWo] = useState(null);
 
-  // Load service types
+  // Load work order data
   useEffect(() => {
-    get("/service-types").then(setServices).catch(() => {});
-  }, []);
+    Promise.all([
+      get(`/work-orders/${id}`),
+      get("/service-types")
+    ])
+      .then(([workOrder, serviceTypes]) => {
+        setWo(workOrder);
+        setServices(serviceTypes);
+        setMember(workOrder.member || null);
+        setTechnician(workOrder.technician || null);
+        setEstFinish(workOrder.est_finish_date || "");
+        
+        // Load items
+        const loadedItems = (workOrder.work_order_item || []).map((item) => ({
+          racket_model_product_id: item.racket_model_product_id,
+          racket_name: item.racket_name || "",
+          racket_code: item.racket_code || "",
+          product_id: item.product_id,
+          product_name: item.product_name || "",
+          product_code: item.product_code || "",
+          service_id: item.service_id,
+          service_name: item.service_name || "",
+          tension: item.tension || 0,
+          material_cost: String(item.material_cost || "0.00"),
+          labor_fee: String(item.labor_fee || "0.00"),
+        }));
+        setItems(loadedItems);
+        setLoading(false);
+      })
+      .catch((e) => {
+        toast(e.message, "error");
+        setLoading(false);
+      });
+  }, [id]);
 
+  // Calculate discount and points when items or member changes
   useEffect(() => {
     async function updateCalculations() {
       const total = items.reduce((s, i) => s + parseFloat(i.material_cost || 0) + parseFloat(i.labor_fee || 0), 0);
@@ -102,12 +136,10 @@ export default function CreateWorkOrder() {
     if (Object.keys(e).length) { setErrors(e); return; }
     setErrors({});
     try {
-      const wo = await post("/work-orders", {
+      await put(`/work-orders/${id}`, {
         member_id: member?.id,
         tech_id: technician?.id,
-        date: today,
         est_finish_date: estFinish,
-        status: "Pending",
         subtotal: totalMaterial.toFixed(2),
         total_labor: totalLabor.toFixed(2),
         discount: discount.toFixed(2),
@@ -122,18 +154,22 @@ export default function CreateWorkOrder() {
           labor_fee: i.labor_fee,
         })),
       });
-      toast("Work order created successfully");
-      nav(`/restringing/${wo.id}`);
+      toast("Work order updated successfully");
+      nav(`/restringing/${id}`);
     } catch (e) { toast(e.message, "error"); }
+  }
+
+  if (loading) {
+    return <div className="py-8 text-center text-sm text-slate-400">Loading...</div>;
   }
 
   return (
     <div>
-      <PageTitle back title="Create Work Order" />
+      <PageTitle back title={`Edit Work Order ${wo?.code}`} />
       <div className="grid grid-cols-3 gap-6">
         <div className="col-span-2 flex flex-col gap-6">
           <Card title="Order Details">
-            <Field label="Date"><div className="text-base font-semibold text-slate-900">{today}</div></Field>
+            <Field label="Date"><div className="text-base font-semibold text-slate-900">{wo?.date}</div></Field>
             <div className="mt-5">
               <Field label="Member">
                 <MemberSearch selected={member} onSelect={(m) => { setMember(m); setErrors((p) => ({ ...p, member: "" })); }} />
@@ -246,7 +282,7 @@ export default function CreateWorkOrder() {
             <span className="text-sm text-slate-500">Points Earned</span>
             <span className="text-base font-bold text-indigo-600">+{pointsEarned}</span>
           </div>
-          <Button className="w-full mb-3" onClick={handleSave}>Save Work Order</Button>
+          <Button className="w-full mb-3" onClick={handleSave}>Update Work Order</Button>
           <Button variant="dangerOutline" className="w-full" onClick={() => nav(-1)}>Cancel</Button>
         </Card>
       </div>

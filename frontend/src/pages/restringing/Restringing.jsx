@@ -50,7 +50,7 @@ export default function Restringing() {
     { key: "code",            label: "WO No" },
     { key: "date",            label: "Date" },
     { key: "member",          label: "Name",           render: (r) => r.member?.name },
-    { key: "tech_id",         label: "Tech ID" },
+    { key: "tech_id",         label: "Technician",     render: (r) => r.technician?.name || r.tech_id },
     { key: "est_finish_date", label: "Est Finish Date" },
     { key: "status",          label: "Status",         render: (r) => <StatusText>{r.status}</StatusText> },
   ];
@@ -78,7 +78,7 @@ export default function Restringing() {
       </div>
       {loading && <div className="py-8 text-center text-sm text-slate-400">Loading...</div>}
       {!loading && filtered.length === 0 && <div className="py-8 text-center text-sm text-slate-400">No work orders found.</div>}
-      <Table columns={cols} rows={filtered} onRowClick={(r) => nav(`/restringing/${r.id}`)} onEdit={(r) => nav(`/restringing/${r.id}`)} onDelete={handleDelete} />
+      <Table columns={cols} rows={filtered} onRowClick={(r) => nav(`/restringing/${r.id}`)} onEdit={(r) => nav(`/restringing/${r.id}/edit`)} onDelete={handleDelete} />
       <Pagination />
       <ConfirmModal open={!!confirm} title={confirm?.title} message={confirm?.message} confirmText="Delete" onConfirm={confirm?.onConfirm} onCancel={() => setConfirm(null)} />
     </div>

@@ -13,6 +13,26 @@ function norm(w) {
     member_id: w.member_id,
     member: w.member,
     tech_id: String(w.technician_id ?? ""),
+    technician: w.technician,
+    est_finish_date: w.expected_finish_date ?? "",
+    status: STATUS_UP[w.status?.toLowerCase()] ?? w.status ?? "Pending",
+    subtotal: w.total_material_cost ?? 0,
+    total_labor: w.total_labor_cost ?? 0,
+    discount: w.member_discount ?? 0,
+    net_amount: w.grand_total ?? 0,
+    points_earned: w.points_earned ?? 0,
+  };
+}
+
+function normDetail(w) {
+  return {
+    id: w.id,
+    code: w.code,
+    date: w.date,
+    member_id: w.member_id,
+    member: w.member,
+    tech_id: String(w.technician_id ?? ""),
+    technician: w.technician,
     est_finish_date: w.expected_finish_date ?? "",
     status: STATUS_UP[w.status?.toLowerCase()] ?? w.status ?? "Pending",
     subtotal: w.total_material_cost ?? 0,
@@ -27,7 +47,7 @@ function norm(w) {
 router.get("/", async (req, res) => {
   try {
     const { search, tech_id, status, from, to } = req.query;
-    let query = supabase.from("work_order").select("*,member:member_id(name)");
+    let query = supabase.from("work_order").select("*,member:member_id(name),technician:technician_id(id,name)");
     if (search) query = query.ilike("code", `%${search}%`);
     if (tech_id) query = query.eq("technician_id", tech_id);
     if (status && status !== "All") query = query.ilike("status", status);
@@ -43,7 +63,7 @@ router.get("/:id", async (req, res) => {
   try {
     const { data: workOrder, error: err1 } = await supabase
       .from("work_order")
-      .select("*,member:member_id(name,phone,tier_id)")
+      .select("*,member:member_id(name,phone,tier_id),technician:technician_id(id,name,phone,code)")
       .eq("id", req.params.id)
       .single();
 
@@ -64,12 +84,13 @@ router.get("/:id", async (req, res) => {
       product_id: i.product_id,
       product_code: i.product?.code ?? "",
       product_name: i.product?.name ?? "",
-      service: i.service?.name ?? "",
+      service_id: i.service_id,
+      service_name: i.service?.name ?? "",
       tension: i.tension_required,
       material_cost: i.material_cost ?? 0,
       labor_fee: i.labor_fee ?? 0,
     }));
-    res.json({ ...norm(workOrder), work_order_item: normItems });
+    res.json({ ...normDetail(workOrder), work_order_item: normItems });
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
