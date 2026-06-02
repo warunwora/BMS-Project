@@ -15,6 +15,7 @@ import Restringing from "./pages/restringing/Restringing";
 import WorkOrderDetail from "./pages/restringing/WorkOrderDetail";
 import CreateWorkOrder from "./pages/restringing/CreateWorkOrder";
 import WorkOrderEdit from "./pages/restringing/WorkOrderEdit";
+import WorkOrderLineItems from "./pages/restringing/WorkOrderLineItems";
 import RevenueByServiceType from "./pages/restringing/RevenueByServiceType";
 
 import CoachingSession from "./pages/coaching/CoachingSession";
@@ -62,6 +63,7 @@ export default function App() {
 
         <Route path="restringing" element={<Restringing />} />
         <Route path="restringing/report" element={<RevenueByServiceType />} />
+        <Route path="restringing/line-items" element={<WorkOrderLineItems />} />
         <Route path="restringing/new" element={<CreateWorkOrder />} />
         <Route path="restringing/:id" element={<WorkOrderDetail />} />
         <Route path="restringing/:id/edit" element={<WorkOrderEdit />} />

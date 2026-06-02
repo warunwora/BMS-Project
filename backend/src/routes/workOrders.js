@@ -59,6 +59,68 @@ router.get("/", async (req, res) => {
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
+router.get("/line-items", async (req, res) => {
+  try {
+    const { search, service_id, product_id, racket_id } = req.query;
+    let query = supabase
+      .from("work_order_line_item")
+      .select(`
+        id,
+        work_order_id,
+        racket_model_product_id,
+        product_id,
+        service_id,
+        tension_required,
+        material_cost,
+        labor_fee,
+        work_order:work_order_id(id, code, date),
+        racket:racket_model_product_id(id, code, name),
+        product:product_id(id, code, name),
+        service:service_id(id, name)
+      `);
+
+    if (search) {
+      const { data: workOrders } = await supabase
+        .from("work_order")
+        .select("id")
+        .ilike("code", `%${search}%`);
+      const woIds = workOrders?.map(wo => wo.id) ?? [];
+      if (woIds.length > 0) {
+        query = query.in("work_order_id", woIds);
+      } else {
+        return res.json([]);
+      }
+    }
+
+    if (service_id) query = query.eq("service_id", service_id);
+    if (product_id) query = query.eq("product_id", product_id);
+    if (racket_id) query = query.eq("racket_model_product_id", racket_id);
+
+    const { data, error } = await query.order("work_order_id", { ascending: false });
+    if (error) throw error;
+
+    const normItems = (data ?? []).map((i) => ({
+      id: i.id,
+      work_order_id: i.work_order_id,
+      work_order_code: i.work_order?.code,
+      work_order_date: i.work_order?.date,
+      racket_model_product_id: i.racket_model_product_id,
+      racket_code: i.racket?.code ?? "",
+      racket_name: i.racket?.name ?? "",
+      product_id: i.product_id,
+      product_code: i.product?.code ?? "",
+      product_name: i.product?.name ?? "",
+      service_id: i.service_id,
+      service_name: i.service?.name ?? "",
+      tension: i.tension_required,
+      material_cost: i.material_cost ?? 0,
+      labor_fee: i.labor_fee ?? 0,
+      line_total: (parseFloat(i.material_cost) || 0) + (parseFloat(i.labor_fee) || 0),
+    }));
+    res.json(normItems);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
 router.get("/:id", async (req, res) => {
   try {
     const { data: workOrder, error: err1 } = await supabase

@@ -63,7 +63,10 @@ export default function Restringing() {
           <>
             <ExportDropdown data={filtered} filename="work-orders" />
             <Tooltip text="View revenue analysis by service type">
-              <Button onClick={() => nav("/restringing/report")}>Report: Revenue by Service</Button>
+              <Button onClick={() => nav("/restringing/report")}>Revenue by Service</Button>
+            </Tooltip>
+            <Tooltip text="View line item details">
+              <Button onClick={() => nav("/restringing/line-items")}>Line Items</Button>
             </Tooltip>
             <Tooltip text="Create new work order">
               <Button icon={Plus} onClick={() => nav("/restringing/new")}>New Work Order</Button>
