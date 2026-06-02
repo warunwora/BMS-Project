@@ -66,7 +66,8 @@ export default function RevenueByServiceType() {
       <PageHeader
         title="Report: Revenue by Service Type"
         actions={
-          <>
+          <div className="flex gap-3 items-center">
+            <DateRangePicker from={dateRange.from} to={dateRange.to} onChange={setDateRange} />
             <ExportDropdown
               data={[
                 ...data.map((r) => ({
@@ -87,13 +88,9 @@ export default function RevenueByServiceType() {
               filename="revenue-by-service-type"
             />
             <Button onClick={() => nav(-1)}>Back</Button>
-          </>
+          </div>
         }
       />
-
-      <div className="mb-5">
-        <DateRangePicker from={dateRange.from} to={dateRange.to} onChange={setDateRange} />
-      </div>
 
       {loading && <div className="py-8 text-center text-sm text-slate-400">Loading...</div>}
       {!loading && data.length === 0 && (
