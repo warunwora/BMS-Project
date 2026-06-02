@@ -47,8 +47,9 @@ export default function Receipt() {
               <Info label="Receipt No" value={r.code} />
               <Info label="Date" value={r.date} />
             </div>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-3 gap-6">
               <Info label="Name" value={r.member?.name} />
+              <Info label="Tier" value={r.member?.tier_id ?? "-"} />
               <Info label="Method" value={r.method ? r.method.charAt(0).toUpperCase() + r.method.slice(1) : "-"} />
             </div>
           </Card>

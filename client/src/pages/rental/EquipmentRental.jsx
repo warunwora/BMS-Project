@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { LayoutList, ShoppingBag, RotateCcw, AlertTriangle } from "lucide-react";
 import { PageHeader, Button, SearchBar, FilterPills, DateRangePicker, ExportDropdown, Table, StatusText, Pagination, Tooltip, ConfirmModal, Plus } from "../../components/ui";
 import { useToast } from "../../contexts/toast";
@@ -8,9 +8,15 @@ import { get, del } from "../../lib/api";
 export default function EquipmentRental() {
   const nav = useNavigate();
   const toast = useToast();
-  const [filter, setFilter] = useState("All");
-  const [search, setSearch] = useState("");
-  const [dateRange, setDateRange] = useState({ from: "", to: "" });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filter = searchParams.get("filter") || "All";
+  const search = searchParams.get("search") || "";
+  const dateRange = { from: searchParams.get("from") || "", to: searchParams.get("to") || "" };
+
+  function setFilter(v) { setSearchParams(p => { const n = new URLSearchParams(p); v && v !== "All" ? n.set("filter", v) : n.delete("filter"); return n; }, { replace: true }); }
+  function setSearch(v) { setSearchParams(p => { const n = new URLSearchParams(p); v ? n.set("search", v) : n.delete("search"); return n; }, { replace: true }); }
+  function setDateRange({ from, to }) { setSearchParams(p => { const n = new URLSearchParams(p); from ? n.set("from", from) : n.delete("from"); to ? n.set("to", to) : n.delete("to"); return n; }, { replace: true }); }
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirm, setConfirm] = useState(null);
@@ -25,7 +31,7 @@ export default function EquipmentRental() {
       .finally(() => setLoading(false));
   }
 
-  useEffect(() => { load(); setPage(1); }, [filter, search]);
+  useEffect(() => { load(); }, [filter, search]);
 
   function handleDelete(row) {
     setConfirm({
@@ -45,7 +51,7 @@ export default function EquipmentRental() {
     return true;
   });
 
-  useEffect(() => { setPage(1); }, [dateRange]);
+  useEffect(() => { setPage(1); }, [dateRange.from, dateRange.to]);
 
   const cols = [
     { key: "code",      label: "Rental No" },

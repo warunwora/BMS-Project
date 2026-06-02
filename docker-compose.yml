@@ -20,7 +20,7 @@ services:
     environment:
       PORT: 4000
       HOST: 0.0.0.0
-      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:Fpg9tybL6TtTP58o@db.nhghoutdgohsetexrwat.supabase.co:5432/postgres}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://root:root@host.docker.internal:15433/bms_db}
       CORS_ORIGIN: ${CORS_ORIGIN:-}
     networks:
       - bms-net

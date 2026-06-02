@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Printer, Trash2, FileText, BarChart2 } from "lucide-react";
 import { PageHeader, Button, SearchBar, DateRangePicker, FilterDropdown, FilterPills, Pagination, ExportDropdown, Tooltip, ConfirmModal } from "../../components/ui";
 import { useToast } from "../../contexts/toast";
@@ -8,11 +8,17 @@ import { get, del } from "../../lib/api";
 export default function SalesHistory() {
   const nav = useNavigate();
   const toast = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const search = searchParams.get("search") || "";
+  const methodFilter = searchParams.get("method") || "";
+  const dateRange = { from: searchParams.get("from") || "", to: searchParams.get("to") || "" };
+
+  function setSearch(v) { setSearchParams(p => { const n = new URLSearchParams(p); v ? n.set("search", v) : n.delete("search"); return n; }, { replace: true }); }
+  function setMethodFilter(v) { setSearchParams(p => { const n = new URLSearchParams(p); v ? n.set("method", v) : n.delete("method"); return n; }, { replace: true }); }
+  function setDateRange({ from, to }) { setSearchParams(p => { const n = new URLSearchParams(p); from ? n.set("from", from) : n.delete("from"); to ? n.set("to", to) : n.delete("to"); return n; }, { replace: true }); }
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [methodFilter, setMethodFilter] = useState("");
-  const [dateRange, setDateRange] = useState({ from: "", to: "" });
   const [confirm, setConfirm] = useState(null);
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(20);
@@ -22,7 +28,7 @@ export default function SalesHistory() {
     get("/sales", { search }).then(setData).catch((e) => toast(e.message, "error")).finally(() => setLoading(false));
   }
 
-  useEffect(() => { load(); setPage(1); }, [search]);
+  useEffect(() => { load(); }, [search]);
 
   function handleDelete(id) {
     setConfirm({
@@ -80,7 +86,7 @@ export default function SalesHistory() {
     return true;
   });
 
-  useEffect(() => { setPage(1); }, [methodFilter, dateRange]);
+  useEffect(() => { setPage(1); }, [methodFilter, dateRange.from, dateRange.to]);
 
   const paged = filtered.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 

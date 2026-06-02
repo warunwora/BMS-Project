@@ -1,16 +1,21 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { PageHeader, Button, SearchBar, DateRangePicker, FilterDropdown, ExportDropdown, Table, Pagination, Tooltip, ConfirmModal, Plus } from "../../components/ui";
 import { useToast } from "../../contexts/toast";
 import { get, del } from "../../lib/api";
 
 export default function CoachingSession() {
   const nav = useNavigate();
-  const location = useLocation();
   const toast = useToast();
-  const [search, setSearch] = useState("");
-  const [coachFilter, setCoachFilter] = useState("");
-  const [dateRange, setDateRange] = useState({ from: "", to: "" });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const search = searchParams.get("search") || "";
+  const coachFilter = searchParams.get("coach") || "";
+  const dateRange = { from: searchParams.get("from") || "", to: searchParams.get("to") || "" };
+
+  function setSearch(v) { setSearchParams(p => { const n = new URLSearchParams(p); v ? n.set("search", v) : n.delete("search"); return n; }, { replace: true }); }
+  function setCoachFilter(v) { setSearchParams(p => { const n = new URLSearchParams(p); v ? n.set("coach", v) : n.delete("coach"); return n; }, { replace: true }); }
+  function setDateRange({ from, to }) { setSearchParams(p => { const n = new URLSearchParams(p); from ? n.set("from", from) : n.delete("from"); to ? n.set("to", to) : n.delete("to"); return n; }, { replace: true }); }
+
   const [data, setData] = useState([]);
   const [coaches, setCoaches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,8 +31,7 @@ export default function CoachingSession() {
   useEffect(() => {
     load();
     get("/coaches").then((c) => setCoaches(c.map((x) => x.name))).catch(() => {});
-    setPage(1);
-  }, [search, location.search]);
+  }, [search]);
 
   function handleDelete(row) {
     setConfirm({
@@ -48,7 +52,7 @@ export default function CoachingSession() {
     return true;
   });
 
-  useEffect(() => { setPage(1); }, [coachFilter, dateRange]);
+  useEffect(() => { setPage(1); }, [coachFilter, dateRange.from, dateRange.to]);
 
   const cols = [
     { key: "code",         label: "Session No" },

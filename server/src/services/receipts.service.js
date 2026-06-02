@@ -23,7 +23,12 @@ const pad2 = (n) => String(n).padStart(2, "0");
 
 export async function getReceipt(id) {
   const { rows } = await pool.query(
-    `SELECT s.*, json_build_object('name', m.name, 'phone', m.phone) AS member
+    `SELECT s.*,
+            json_build_object(
+              'name', m.name,
+              'phone', m.phone,
+              'tier_id', CASE m.tier_id WHEN 1 THEN 'Bronze' WHEN 2 THEN 'Silver' WHEN 3 THEN 'Gold' WHEN 4 THEN 'Premium' ELSE 'Bronze' END
+            ) AS member
        FROM sale s
        LEFT JOIN member m ON m.id = s.member_id
       WHERE s.id = $1`,
