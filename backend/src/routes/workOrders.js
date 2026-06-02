@@ -192,6 +192,62 @@ router.put("/:id", async (req, res) => {
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
+router.get("/report/revenue-by-service", async (req, res) => {
+  try {
+    const { from, to } = req.query;
+    
+    let query = supabase
+      .from("work_order_line_item")
+      .select(`
+        id,
+        material_cost,
+        labor_fee,
+        work_order:work_order_id(id, date, grand_total),
+        service:service_id(id, name)
+      `);
+
+    if (from || to) {
+      const { data: workOrders, error: err } = await supabase
+        .from("work_order")
+        .select("id")
+        .gte("date", from || "1900-01-01")
+        .lte("date", to || "2999-12-31");
+      if (err) throw err;
+      
+      const woIds = workOrders?.map(wo => wo.id) ?? [];
+      query = query.in("work_order_id", woIds);
+    }
+
+    const { data: items, error } = await query;
+    if (error) throw error;
+
+    // Group by service type
+    const grouped = {};
+    (items ?? []).forEach(item => {
+      const serviceName = item.service?.name || "Unnamed Service";
+      if (!grouped[serviceName]) {
+        grouped[serviceName] = {
+          service_name: serviceName,
+          service_id: item.service?.id,
+          total_material: 0,
+          total_labor: 0,
+          revenue: 0,
+          count: 0,
+        };
+      }
+      const mat = parseFloat(item.material_cost) || 0;
+      const lab = parseFloat(item.labor_fee) || 0;
+      grouped[serviceName].total_material += mat;
+      grouped[serviceName].total_labor += lab;
+      grouped[serviceName].revenue += mat + lab;
+      grouped[serviceName].count += 1;
+    });
+
+    const result = Object.values(grouped).sort((a, b) => b.revenue - a.revenue);
+    res.json(result);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
 router.delete("/:id", async (req, res) => {
   try {
     await supabase.from("work_order_line_item").delete().eq("work_order_id", req.params.id);
