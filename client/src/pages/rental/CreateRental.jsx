@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Pencil, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { PageTitle, Button, Card, Field, Select, Plus, MemberSearch } from "../../components/ui";
 import { useToast } from "../../contexts/toast";
 import { get, post } from "../../lib/api";
@@ -90,7 +90,19 @@ export default function CreateRental() {
                 <div className="font-semibold">{item.asset?.brand} {item.asset?.code}</div>
                 <div>{item.condition_out}</div>
                 <div>{item.rate}</div>
-                <div className="text-emerald-600">{item.deposit}</div>
+                <input
+                  type="number"
+                  value={item.deposit}
+                  onChange={(e) =>
+                    setItems((prev) =>
+                      prev.map((row, idx) =>
+                        idx === i
+                          ? { ...row, deposit: e.target.value }
+                          : row
+                      )
+                    )
+                  }
+                />
                 <button onClick={() => removeItem(i)} className="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center"><Trash2 className="w-3.5 h-3.5 text-rose-500" /></button>
               </div>
             ))}
@@ -99,7 +111,15 @@ export default function CreateRental() {
 
         <Card title="Summary & Payment">
           <Row label="Total Rental Fee" value={total.toFixed(2)} />
-          <Row label="Total Deposit" value="0.00" color="text-emerald-600" />
+          <Row
+            label="Total Deposit"
+            value={
+              items
+                .reduce((s, i) => s + parseFloat(i.deposit || 0), 0)
+                .toFixed(2)
+            }
+            color="text-emerald-600"
+          />
           <Row label="Member Discount" value="0.00" />
           <div className="border-t border-slate-100 my-4"></div>
           <Row label="Amount to Collect" value={total.toFixed(2)} />

@@ -10,6 +10,7 @@ import BookingEdit from "./pages/booking/BookingEdit";
 import EquipmentRental from "./pages/rental/EquipmentRental";
 import RentalDetail from "./pages/rental/RentalDetail";
 import CreateRental from "./pages/rental/CreateRental";
+import DamageAnalysis from "./pages/rental/DamageAnalysis";
 
 import Restringing from "./pages/restringing/Restringing";
 import WorkOrderDetail from "./pages/restringing/WorkOrderDetail";
@@ -56,6 +57,7 @@ export default function App() {
 
         <Route path="rental" element={<EquipmentRental />} />
         <Route path="rental/new" element={<CreateRental />} />
+        <Route path="rental/damage-analysis" element={<DamageAnalysis />} />
         <Route path="rental/:id" element={<RentalDetail />} />
 
         <Route path="restringing" element={<Restringing />} />

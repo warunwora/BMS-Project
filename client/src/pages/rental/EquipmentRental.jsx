@@ -68,6 +68,12 @@ export default function EquipmentRental() {
         actions={
           <>
             <ExportDropdown data={filtered} filename="rentals" />
+            <Button
+              variant="outlineBlue"
+              onClick={() => nav("/rental/damage-analysis")}
+            >
+              Damage Analysis
+            </Button>
             <Tooltip text="Create new rental">
               <Button icon={Plus} onClick={() => nav("/rental/new")}>New Rental</Button>
             </Tooltip>

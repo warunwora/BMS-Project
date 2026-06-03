@@ -51,16 +51,55 @@ export default function RentalDetail() {
 
   async function doReturn() {
     try {
-      await put(`/rentals/${id}`, { status: "Returned" });
+
+      console.log(
+        items.map((item, i) => ({
+          id: item.id,
+          condition_in:
+            itemUpdates[i]?.condition_in ??
+            item.condition_in,
+
+          damage_fee:
+            Number(
+              itemUpdates[i]?.damage_fee ??
+              item.damage_fee ??
+              0
+            )
+        }))
+      );
+
+      await put(`/rentals/${id}`, {
+        status: "Returned",
+        rental_item: items.map((item, i) => ({
+          id: item.id,
+          condition_in:
+            itemUpdates[i]?.condition_in ??
+            item.condition_in,
+
+          damage_fee:
+            Number(
+              itemUpdates[i]?.damage_fee ??
+              item.damage_fee ??
+              0
+            )
+        }))
+      });
+
       toast("Rental marked as returned");
       nav("/rental");
-    } catch (e) { toast(e.message, "error"); }
+
+    } catch (e) {
+      console.error(e);
+      toast(e.message, "error");
+    }
+
     setConfirm(false);
   }
 
   if (!r) return <div className="py-8 text-center text-sm text-slate-400">Loading...</div>;
 
   const items = r.rental_item ?? [];
+  const totalDamageFee = items.reduce((sum, item, i) => { return ( sum + Number( itemUpdates[i]?.damage_fee ?? item.damage_fee ?? 0 ) ); }, 0);
 
   return (
     <div>
@@ -91,7 +130,7 @@ export default function RentalDetail() {
           <Card title="Asset Items">
             <div className="text-sm text-slate-500 mb-4">Total: {items.length}</div>
             <div className="grid grid-cols-[1.4fr_1fr_1.2fr_0.8fr_1fr_1fr] gap-x-3 text-xs text-slate-500 pb-3 border-b border-slate-100">
-              <div>Asset</div><div>Condition Out</div><div>Condition In</div><div>Rate</div><div>Deposit</div><div>Penalty</div>
+              <div>Asset</div><div>Condition Out</div><div>Condition In</div><div>Rate</div><div>Damage Fee</div><div>Penalty</div>
             </div>
             {items.map((item, i) => {
               const upd = itemUpdates[i] || {};
@@ -107,7 +146,14 @@ export default function RentalDetail() {
                     <ChevronDown className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
                   </div>
                   <div>{item.rate}</div>
-                  <div className="text-emerald-600">{item.deposit}</div>
+                  <input
+                    type="number"
+                    min="0"
+                    value={upd.damage_fee ?? item.damage_fee ?? 0}
+                    onChange={(e) =>
+                      setItemField(i, "damage_fee", Number(e.target.value))
+                    }
+                  />
                   <div className="relative">
                     <select value={upd.penalty ?? item.penalty ?? ""} onChange={(e) => setItemField(i, "penalty", e.target.value)} className="appearance-none border border-slate-200 rounded-lg px-3 py-1.5 pr-7 text-sm bg-white w-full cursor-pointer">
                       <option value="">None</option>
@@ -122,17 +168,22 @@ export default function RentalDetail() {
         </div>
         <Card title="Payment Summary">
           <Row label="Subtotal"        value={r.subtotal} />
-          <Row label="Deposit"         value={r.total_deposit} color="text-emerald-600" />
+          <Row label="Deposit"         value={r.deposit} color="text-emerald-600" />
           <Row label="Discount"        value={r.discount} />
+          <Row
+            label="Damage Fee"
+            value={totalDamageFee}
+            color="text-red-600"
+          />
           <div className="border-t border-slate-100 my-4" />
-          <Row label="Amount Collected" value={r.total_fee} />
+          <Row label="Amount to Collect" value={r.total_fee} />
           <div className="flex justify-between items-center py-1">
             <span className="text-sm text-slate-500">Points Earned</span>
             <span className="text-base font-bold text-indigo-600">+{r.points_earned ?? 0}</span>
           </div>
           <div className="border-t border-slate-100 my-4" />
           <Row label="Net Refund"    value={r.net_refund} />
-          <Row label="Total Deposit" value={r.total_deposit} />
+          <Row label="Total Deposit" value={r.deposit} />
           <Row label="Change"        value={r.change} />
         </Card>
       </div>

@@ -13,6 +13,14 @@ export async function get(req, res) {
     sendData(res, r);
   } catch (e) { sendError(res, e.message, 400); }
 }
+
+export async function damageAnalysis(req, res) {
+  try {
+    sendData(res, await service.damageAnalysis());
+  } catch (e) {
+    sendError(res, e.message, 400);
+  }
+}
 export async function create(req, res) {
   try { sendCreated(res, await service.createRental(req.body)); }
   catch (e) { logger.error("createRental failed", { error: e.message }); sendError(res, e.message, 400); }
