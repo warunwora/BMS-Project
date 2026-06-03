@@ -28,3 +28,20 @@ export async function remove(req, res) {
   try { await service.deleteWorkOrder(req.params.id); sendOk(res); }
   catch (e) { sendError(res, e.message, 400); }
 }
+
+export async function serviceTypeAnalysis(req, res) {
+  try {
+    const rows =
+      await service.serviceTypeAnalysis();
+
+    res.json(rows);
+
+  } catch (e) {
+    console.error(e);
+
+    res.status(400).json({
+      success: false,
+      message: e.message,
+    });
+  }
+}

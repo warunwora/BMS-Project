@@ -189,3 +189,43 @@ export async function deleteWorkOrder(id) {
   await pool.query("DELETE FROM work_order WHERE id = $1", [id]);
   return { ok: true };
 }
+
+export async function serviceTypeAnalysis() {
+  const { rows } = await pool.query(`
+    SELECT
+        COALESCE(st.name, 'TOTAL') AS service_type,
+        COUNT(wl.id) AS line_item_count,
+
+        ROUND(
+          SUM(wl.material_cost)::numeric,
+          2
+        ) AS total_material_cost,
+
+        ROUND(
+          SUM(wl.labor_fee)::numeric,
+          2
+        ) AS total_labor_cost,
+
+        ROUND(
+          SUM(wl.material_cost + wl.labor_fee)::numeric,
+          2
+        ) AS grand_total
+
+    FROM work_order_line_item wl
+
+    JOIN service_type st
+      ON wl.service_id = st.id
+
+    JOIN work_order w
+      ON wl.work_order_id = w.id
+
+    WHERE w.date >= '2026-03-10'
+      AND w.date < '2026-03-18'
+
+    GROUP BY ROLLUP(st.name)
+
+    ORDER BY grand_total
+  `);
+
+  return rows;
+}

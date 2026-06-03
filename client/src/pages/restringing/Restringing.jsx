@@ -70,6 +70,12 @@ export default function Restringing() {
             <Tooltip text="Create new work order">
               <Button icon={Plus} onClick={() => nav("/restringing/new")}>New Work Order</Button>
             </Tooltip>
+            <Button
+  variant="outlineBlue"
+  onClick={() => nav("/workorder/service-type-analysis")}
+>
+  Service Type Analysis
+</Button>
           </>
         }
       />

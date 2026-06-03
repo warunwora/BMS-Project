@@ -16,6 +16,7 @@ import DamageAnalysis from "./pages/rental/DamageAnalysis";
 import Restringing from "./pages/restringing/Restringing";
 import WorkOrderDetail from "./pages/restringing/WorkOrderDetail";
 import CreateWorkOrder from "./pages/restringing/CreateWorkOrder";
+import ServiceTypeAnalysis from "./pages/restringing/ServiceTypeAnalysis";
 
 import CoachingSession from "./pages/coaching/CoachingSession";
 import SessionDetail from "./pages/coaching/SessionDetail";
@@ -64,7 +65,10 @@ export default function App() {
         <Route path="restringing" element={<Restringing />} />
         <Route path="restringing/new" element={<CreateWorkOrder />} />
         <Route path="restringing/:id" element={<WorkOrderDetail />} />
-
+        <Route
+  path="workorder/service-type-analysis"
+  element={<ServiceTypeAnalysis />}
+/>
         <Route path="coaching" element={<CoachingSession />} />
         <Route path="coaching/new" element={<BookSession />} />
         <Route path="coaching/:id" element={<SessionDetail />} />
