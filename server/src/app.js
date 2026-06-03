@@ -14,6 +14,8 @@ import workOrdersRoutes from "./routes/workOrders.routes.js";
 import receiptsRoutes from "./routes/receipts.routes.js";
 import salesRoutes from "./routes/sales.routes.js";
 import techniciansRoutes from "./routes/technicians.routes.js";
+import serviceTypesRoutes from "./routes/serviceTypes.routes.js";
+import tiersRoutes from "./routes/tiers.routes.js";
 
 const app = express();
 
@@ -47,6 +49,8 @@ app.use("/api/work-orders", workOrdersRoutes);
 app.use("/api/receipts", receiptsRoutes);
 app.use("/api/sales", salesRoutes);
 app.use("/api/technicians", techniciansRoutes);
+app.use("/api/service-types", serviceTypesRoutes);
+app.use("/api/tiers", tiersRoutes);
 
 const port = process.env.PORT || 4000;
 const host = process.env.HOST || "0.0.0.0";

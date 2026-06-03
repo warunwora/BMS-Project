@@ -144,9 +144,9 @@ export async function createWorkOrder(body) {
       const material = parseFloat(i.material_cost) || 0;
       const labor = parseFloat(i.labor_fee) || 0;
       await pool.query(
-        `INSERT INTO work_order_line_item (id, work_order_id, material_cost, labor_fee, line_total)
-         VALUES ($1,$2,$3,$4,$5)`,
-        [lineId++, wo.id, material, labor, material + labor]
+        `INSERT INTO work_order_line_item (id, work_order_id, racket_model_product_id, product_id, service_id, tension_required, material_cost, labor_fee, line_total)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+        [lineId++, wo.id, i.racket_model_product_id || null, i.product_id || null, i.service_id || null, parseFloat(i.tension) || null, material, labor, material + labor]
       );
     }
   }
