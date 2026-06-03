@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { LayoutList, Clock, CheckCircle2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { PageHeader, Button, SearchBar, FilterPills, DateRangePicker, FilterDropdown, ExportDropdown, Table, StatusText, Pagination, Tooltip, ConfirmModal, Plus } from "../../components/ui";
 import { useToast } from "../../contexts/toast";
 import { get, del } from "../../lib/api";
@@ -8,22 +7,13 @@ import { get, del } from "../../lib/api";
 export default function Restringing() {
   const nav = useNavigate();
   const toast = useToast();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const filter = searchParams.get("filter") || "All";
-  const search = searchParams.get("search") || "";
-  const techFilter = searchParams.get("tech") || "";
-  const dateRange = { from: searchParams.get("from") || "", to: searchParams.get("to") || "" };
-
-  function setFilter(v) { setSearchParams(p => { const n = new URLSearchParams(p); v && v !== "All" ? n.set("filter", v) : n.delete("filter"); return n; }, { replace: true }); }
-  function setSearch(v) { setSearchParams(p => { const n = new URLSearchParams(p); v ? n.set("search", v) : n.delete("search"); return n; }, { replace: true }); }
-  function setTechFilter(v) { setSearchParams(p => { const n = new URLSearchParams(p); v ? n.set("tech", v) : n.delete("tech"); return n; }, { replace: true }); }
-  function setDateRange({ from, to }) { setSearchParams(p => { const n = new URLSearchParams(p); from ? n.set("from", from) : n.delete("from"); to ? n.set("to", to) : n.delete("to"); return n; }, { replace: true }); }
-
+  const [filter, setFilter] = useState("All");
+  const [search, setSearch] = useState("");
+  const [techFilter, setTechFilter] = useState("");
+  const [dateRange, setDateRange] = useState({ from: "", to: "" });
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirm, setConfirm] = useState(null);
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(20);
 
   function load() {
     setLoading(true);
@@ -56,13 +46,11 @@ export default function Restringing() {
     return true;
   });
 
-  useEffect(() => { setPage(1); }, [techFilter, dateRange.from, dateRange.to]);
-
   const cols = [
     { key: "code",            label: "WO No" },
     { key: "date",            label: "Date" },
     { key: "member",          label: "Name",           render: (r) => r.member?.name },
-    { key: "tech_id",         label: "Tech ID" },
+    { key: "tech_id",         label: "Technician",     render: (r) => r.technician?.name || r.tech_id },
     { key: "est_finish_date", label: "Est Finish Date" },
     { key: "status",          label: "Status",         render: (r) => <StatusText>{r.status}</StatusText> },
   ];
@@ -74,6 +62,12 @@ export default function Restringing() {
         actions={
           <>
             <ExportDropdown data={filtered} filename="work-orders" />
+            <Tooltip text="View revenue analysis by service type">
+              <Button onClick={() => nav("/restringing/report")}>Revenue by Service</Button>
+            </Tooltip>
+            <Tooltip text="View line item details">
+              <Button onClick={() => nav("/restringing/line-items")}>Line Items</Button>
+            </Tooltip>
             <Tooltip text="Create new work order">
               <Button icon={Plus} onClick={() => nav("/restringing/new")}>New Work Order</Button>
             </Tooltip>
@@ -86,13 +80,12 @@ export default function Restringing() {
         <DateRangePicker from={dateRange.from} to={dateRange.to} onChange={setDateRange} />
       </div>
       <div className="mb-5">
-        <FilterPills items={["All", "Pending", "Completed"]} value={filter} onChange={setFilter}
-          icons={{ All: LayoutList, Pending: Clock, Completed: CheckCircle2 }} />
+        <FilterPills items={["All", "Pending", "In Progress", "Completed"]} value={filter} onChange={setFilter} />
       </div>
       {loading && <div className="py-8 text-center text-sm text-slate-400">Loading...</div>}
       {!loading && filtered.length === 0 && <div className="py-8 text-center text-sm text-slate-400">No work orders found.</div>}
-      <Table columns={cols} rows={filtered.slice((page - 1) * rowsPerPage, page * rowsPerPage)} onRowClick={(r) => nav(`/restringing/${r.id}`)} onEdit={(r) => nav(`/restringing/${r.id}`)} onDelete={handleDelete} />
-      <Pagination page={page} onPage={setPage} totalRows={filtered.length} rowsPerPage={rowsPerPage} onRowsPerPage={(n) => { setRowsPerPage(n); setPage(1); }} />
+      <Table columns={cols} rows={filtered} onRowClick={(r) => nav(`/restringing/${r.id}`)} onEdit={(r) => nav(`/restringing/${r.id}/edit`)} onDelete={handleDelete} />
+      <Pagination />
       <ConfirmModal open={!!confirm} title={confirm?.title} message={confirm?.message} confirmText="Delete" onConfirm={confirm?.onConfirm} onCancel={() => setConfirm(null)} />
     </div>
   );
