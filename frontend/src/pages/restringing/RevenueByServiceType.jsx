@@ -82,7 +82,7 @@ export default function RevenueByServiceType() {
                   "Item Count": data.reduce((sum, r) => sum + (r.count || 0), 0),
                   "Material Cost": data.reduce((sum, r) => sum + (r.total_material || 0), 0),
                   "Labor Cost": data.reduce((sum, r) => sum + (r.total_labor || 0), 0),
-                  "Total Revenue": grandTotal,
+                  "Total Revenue": Total,
                 },
               ]}
               filename="revenue-by-service-type"
@@ -105,7 +105,7 @@ export default function RevenueByServiceType() {
         <div className="border-t border-slate-200 pt-4 mt-4">
           <div className="flex justify-end gap-8 font-semibold text-sm">
             <div>
-              <span className="text-slate-600">Grand Total Revenue:</span>
+              <span className="text-slate-600">Line Sum:</span>
               <span className="ml-2 text-lg text-slate-900">{formatCurrency(grandTotal)}</span>
             </div>
           </div>
