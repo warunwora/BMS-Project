@@ -28,3 +28,18 @@ export async function remove(req, res) {
   try { await service.deleteBooking(req.params.id); sendOk(res); }
   catch (e) { sendError(res, e.message, 400); }
 }
+
+export async function memberTierAnalysis(req, res) {
+  try {
+    const data =
+      await service.memberTierAnalysis();
+
+    res.json(data);
+
+  } catch (e) {
+    res.status(400).json({
+      success: false,
+      message: e.message,
+    });
+  }
+}

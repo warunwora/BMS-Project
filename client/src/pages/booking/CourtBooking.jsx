@@ -74,6 +74,12 @@ export default function CourtBooking() {
             <Tooltip text="Create new booking">
               <Button icon={Plus} onClick={() => nav("/booking/new")}>New Booking</Button>
             </Tooltip>
+              <Button
+              variant="outlineBlue"
+              onClick={() => nav("/booking/member-tier-analysis")}
+            >
+              Member Tier Analysis
+            </Button>
           </>
         }
       />

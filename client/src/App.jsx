@@ -6,6 +6,7 @@ import CourtBooking from "./pages/booking/CourtBooking";
 import BookingDetail from "./pages/booking/BookingDetail";
 import CreateBooking from "./pages/booking/CreateBooking";
 import BookingEdit from "./pages/booking/BookingEdit";
+import MemberTierAnalysis from "./pages/booking/MemberTierAnalysis";
 
 import EquipmentRental from "./pages/rental/EquipmentRental";
 import RentalDetail from "./pages/rental/RentalDetail";
@@ -54,7 +55,7 @@ export default function App() {
         <Route path="booking/new" element={<CreateBooking />} />
         <Route path="booking/:id" element={<BookingDetail />} />
         <Route path="booking/:id/edit" element={<BookingEdit />} />
-
+        <Route path="booking/member-tier-analysis" element={<MemberTierAnalysis />} />
         <Route path="rental" element={<EquipmentRental />} />
         <Route path="rental/new" element={<CreateRental />} />
         <Route path="rental/damage-analysis" element={<DamageAnalysis />} />

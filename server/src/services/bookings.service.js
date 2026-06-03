@@ -190,3 +190,28 @@ export async function deleteBooking(id) {
   await pool.query("DELETE FROM court_reservation WHERE id = $1", [id]);
   return { ok: true };
 }
+
+
+export async function memberTierAnalysis() {
+  const { rows } = await pool.query(`
+    SELECT
+        t.name AS tier,
+        COUNT(DISTINCT m.id) AS total_members,
+        COUNT(s.id) AS total_transaction,
+        ROUND(SUM(s.net_total)::numeric, 2) AS total_revenue,
+        ROUND(SUM(s.points_redeemed)::numeric, 2) AS total_points_redeemed,
+        ROUND(AVG(s.net_total)::numeric, 2) AS avg_purchase,
+        ROUND(
+            (SUM(s.net_total) / COUNT(DISTINCT m.id))::numeric,
+            2
+        ) AS revenue_per_member
+    FROM sale s
+    JOIN member m ON s.member_id = m.id
+    JOIN tier t ON m.tier_id = t.id
+    WHERE s.sale_date BETWEEN '2026-01-01' AND '2026-12-31'
+    GROUP BY t.name
+    ORDER BY total_revenue DESC
+  `);
+
+  return rows;
+}
