@@ -28,3 +28,20 @@ export async function remove(req, res) {
   try { await service.deleteCoach(req.params.id); sendOk(res); }
   catch (e) { sendError(res, e.message, 400); }
 }
+
+export async function coachPerformanceAnalysis(req, res) {
+  try {
+    const rows =
+      await service.coachPerformanceAnalysis();
+
+    res.json(rows);
+
+  } catch (e) {
+    console.error(e);
+
+    res.status(400).json({
+      success: false,
+      message: e.message,
+    });
+  }
+}

@@ -64,3 +64,38 @@ export async function deleteCoach(id) {
   await pool.query("DELETE FROM coach WHERE coach_id=$1", [id]);
   return { ok: true };
 }
+
+export async function coachPerformanceAnalysis() {
+  const { rows } = await pool.query(`
+    SELECT
+        c.name AS coach_name,
+
+        COUNT(
+          DISTINCT h.session_no
+        ) AS total_sessions,
+
+        ROUND(
+          SUM(l.hours)::numeric,
+          2
+        ) AS total_teaching_hours,
+
+        ROUND(
+          SUM(h.net_coaching_fee)::numeric,
+          2
+        ) AS total_revenue
+
+    FROM coach c
+
+    LEFT JOIN coaching_header h
+      ON c.coach_id = h.coach_id
+
+    LEFT JOIN coaching_line_item l
+      ON h.session_no = l.session_no
+
+    GROUP BY c.name
+
+    ORDER BY total_revenue DESC
+  `);
+
+  return rows;
+}

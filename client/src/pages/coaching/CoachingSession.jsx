@@ -69,6 +69,12 @@ export default function CoachingSession() {
             <Tooltip text="Book a new coaching session">
               <Button icon={Plus} onClick={() => nav("/coaching/new")}>Book Session</Button>
             </Tooltip>
+            <Button
+  variant="outlineBlue"
+  onClick={() => nav("/coaching/coach-performance-analysis")}
+>
+  Coach Performance Analysis
+</Button>
           </>
         }
       />

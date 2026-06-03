@@ -22,6 +22,7 @@ import CoachingSession from "./pages/coaching/CoachingSession";
 import SessionDetail from "./pages/coaching/SessionDetail";
 import BookSession from "./pages/coaching/BookSession";
 import SessionEdit from "./pages/coaching/SessionEdit";
+import CoachPerformanceAnalysis from "./pages/coaching/CoachPerformanceAnalysis";
 
 import POS from "./pages/pos/POS";
 import Receipt from "./pages/pos/Receipt";
@@ -73,7 +74,10 @@ export default function App() {
         <Route path="coaching/new" element={<BookSession />} />
         <Route path="coaching/:id" element={<SessionDetail />} />
         <Route path="coaching/:id/edit" element={<SessionEdit />} />
-
+        <Route
+  path="coaching/coach-performance-analysis"
+  element={<CoachPerformanceAnalysis />}
+/>
         <Route path="pos" element={<POS />} />
         <Route path="pos/receipt/:id" element={<Receipt />} />
 
