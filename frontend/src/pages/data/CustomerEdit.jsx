@@ -10,9 +10,19 @@ export default function CustomerEdit() {
   const nav = useNavigate();
   const toast = useToast();
   const [form, setForm] = useState(null);
+  const [tiers, setTiers] = useState([]);
   const [confirm, setConfirm] = useState(false);
 
-  useEffect(() => { get(`/members/${id}`).then(setForm).catch((e) => toast(e.message, "error")); }, [id]);
+  useEffect(() => { 
+    get(`/members/${id}`).then(setForm).catch((e) => toast(e.message, "error")); 
+  }, [id]);
+
+  // Load tiers on mount
+  useEffect(() => {
+    get("/tiers")
+      .then(setTiers)
+      .catch((e) => toast(e.message, "error"));
+  }, []);
 
   function set(k, v) { setForm((f) => ({ ...f, [k]: v })); }
 
@@ -49,8 +59,16 @@ export default function CustomerEdit() {
         <Card title="Membership Info">
           <div className="grid grid-cols-3 gap-6">
             <Field label="Membership Tier" required>
-              <Select value={form.tier_id ?? "Bronze"} onChange={(e) => set("tier_id", e.target.value)}>
-                <option>Bronze</option><option>Silver</option><option>Gold</option><option>Premium</option>
+              <Select 
+                value={tiers.find(t => t.id === form.tier_id)?.name ?? ""} 
+                onChange={(e) => {
+                  const tier = tiers.find(t => t.name === e.target.value);
+                  set("tier_id", tier?.id);
+                }}
+              >
+                {tiers.map((t) => (
+                  <option key={t.id} value={t.name}>{t.name}</option>
+                ))}
               </Select>
             </Field>
             <Field label="Current Reward Points"><div className="text-base font-semibold">{form.points ?? 0}</div></Field>

@@ -1,14 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Save } from "lucide-react";
 import { PageTitle, Button, Card, Field, Input, Select, Tooltip } from "../../components/ui";
 import { useToast } from "../../contexts/toast";
-import { post } from "../../lib/api";
+import { post, get } from "../../lib/api";
 
 export default function CreateMember() {
   const nav = useNavigate();
   const toast = useToast();
-  const [form, setForm] = useState({ name: "", phone: "", email: "", gender: "Male", tier_id: "Bronze" });
+  const [form, setForm] = useState({ name: "", phone: "", email: "", gender: "Male", tier_id: 1 });
+  const [tiers, setTiers] = useState([]);
+
+  // Load tiers on mount
+  useEffect(() => {
+    get("/tiers")
+      .then(setTiers)
+      .catch((e) => toast(e.message, "error"));
+  }, []);
 
   function set(k, v) { setForm((f) => ({ ...f, [k]: v })); }
 
@@ -47,8 +55,10 @@ export default function CreateMember() {
         <Card title="Membership Info">
           <div className="grid grid-cols-3 gap-6">
             <Field label="Membership Tier" required>
-              <Select value={form.tier_id} onChange={(e) => set("tier_id", e.target.value)}>
-                <option>Bronze</option><option>Silver</option><option>Gold</option><option>Premium</option>
+              <Select value={form.tier_id} onChange={(e) => set("tier_id", parseInt(e.target.value))}>
+                {tiers.map((t) => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
               </Select>
             </Field>
             <Field label="Current Reward Points"><div className="text-base font-semibold pt-1">0</div></Field>

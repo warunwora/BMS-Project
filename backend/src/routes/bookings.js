@@ -180,4 +180,64 @@ router.delete("/:id", async (req, res) => {
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
+router.get("/report/revenue-and-points-by-tier", async (req, res) => {
+  try {
+    const { from, to } = req.query;
+    
+    let query = supabase
+      .from("court_reservation")
+      .select(`
+        id,
+        net_amount,
+        points_earned,
+        member:member_id(tier_id)
+      `);
+
+    if (from) query = query.gte("reservation_date", from);
+    if (to) query = query.lte("reservation_date", to);
+
+    const { data: bookings, error } = await query;
+    if (error) throw error;
+
+    // Get all tiers for reference
+    const { data: tiers, error: tierError } = await supabase
+      .from("tier")
+      .select("*")
+      .order("id", { ascending: true });
+    if (tierError) throw tierError;
+
+    // Create tier map for lookups
+    const tierMap = {};
+    (tiers ?? []).forEach(t => {
+      tierMap[t.id] = t;
+    });
+
+    // Group by tier
+    const grouped = {};
+    (bookings ?? []).forEach(booking => {
+      const tierId = booking.member?.tier_id;
+      const tier = tierMap[tierId];
+      const tierName = tier?.name || `Tier ${tierId}`;
+      
+      if (!grouped[tierId]) {
+        grouped[tierId] = {
+          tier_id: tierId,
+          tier_name: tierName,
+          tier_order: tier?.id || 999,
+          total_revenue: 0,
+          total_points: 0,
+          booking_count: 0,
+        };
+      }
+      grouped[tierId].total_revenue += parseFloat(booking.net_amount) || 0;
+      grouped[tierId].total_points += parseFloat(booking.points_earned) || 0;
+      grouped[tierId].booking_count += 1;
+    });
+
+    // Sort by tier order (tier id)
+    const result = Object.values(grouped).sort((a, b) => a.tier_order - b.tier_order);
+    res.json(result);
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
 export default router;

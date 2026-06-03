@@ -9,6 +9,7 @@ export default function DataMembers() {
   const nav = useNavigate();
   const toast = useToast();
   const [data, setData] = useState([]);
+  const [tiers, setTiers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [tierFilter, setTierFilter] = useState("");
@@ -18,6 +19,13 @@ export default function DataMembers() {
     setLoading(true);
     get("/members", { search }).then(setData).catch((e) => toast(e.message, "error")).finally(() => setLoading(false));
   }
+
+  // Load tiers on mount
+  useEffect(() => {
+    get("/tiers")
+      .then(setTiers)
+      .catch((e) => toast(e.message, "error"));
+  }, []);
 
   useEffect(() => { load(); }, [search]);
 
@@ -33,13 +41,18 @@ export default function DataMembers() {
     });
   }
 
-  const filtered = tierFilter ? data.filter((r) => r.tier_id === tierFilter) : data;
+  const filtered = tierFilter ? data.filter((r) => r.tier_name === tierFilter) : data;
 
   return (
     <DataLayout>
       <div className="flex gap-3 mb-5">
         <SearchBar placeholder="Search by Name, Phone, Email" value={search} onChange={(e) => setSearch(e.target.value)} />
-        <FilterDropdown label="Tier" options={["Bronze", "Silver", "Gold", "Premium"]} value={tierFilter} onChange={setTierFilter} />
+        <FilterDropdown 
+          label="Tier" 
+          options={tiers.map((t) => t.name)} 
+          value={tierFilter} 
+          onChange={setTierFilter} 
+        />
       </div>
       <div className="grid grid-cols-[0.5fr_1.5fr_1.5fr_0.8fr_1fr_auto] text-sm text-slate-400 py-4 px-2 border-t border-slate-100">
         <div>ID</div><div>Name</div><div>Phone</div><div>Tier</div><div>Current Points</div><div></div>
